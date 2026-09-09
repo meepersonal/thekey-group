@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AProposRouteImport } from './routes/a-propos'
 import { Route as CatalogueRouteImport } from './routes/catalogue'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as VehiculesIdRouteImport } from './routes/vehicules.$id'
 
@@ -19,9 +21,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AProposRoute = AProposRouteImport.update({
+  id: '/a-propos',
+  path: '/a-propos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CatalogueRoute = CatalogueRouteImport.update({
   id: '/catalogue',
   path: '/catalogue',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrackingRoute = TrackingRouteImport.update({
@@ -37,34 +49,61 @@ const VehiculesIdRoute = VehiculesIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
   '/catalogue': typeof CatalogueRoute
+  '/contact': typeof ContactRoute
   '/tracking': typeof TrackingRoute
   '/vehicules/$id': typeof VehiculesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
   '/catalogue': typeof CatalogueRoute
+  '/contact': typeof ContactRoute
   '/tracking': typeof TrackingRoute
   '/vehicules/$id': typeof VehiculesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
   '/catalogue': typeof CatalogueRoute
+  '/contact': typeof ContactRoute
   '/tracking': typeof TrackingRoute
   '/vehicules/$id': typeof VehiculesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/catalogue' | '/tracking' | '/vehicules/$id'
+  fullPaths:
+    | '/'
+    | '/a-propos'
+    | '/catalogue'
+    | '/contact'
+    | '/tracking'
+    | '/vehicules/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/catalogue' | '/tracking' | '/vehicules/$id'
-  id: '__root__' | '/' | '/catalogue' | '/tracking' | '/vehicules/$id'
+  to:
+    | '/'
+    | '/a-propos'
+    | '/catalogue'
+    | '/contact'
+    | '/tracking'
+    | '/vehicules/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/a-propos'
+    | '/catalogue'
+    | '/contact'
+    | '/tracking'
+    | '/vehicules/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AProposRoute: typeof AProposRoute
   CatalogueRoute: typeof CatalogueRoute
+  ContactRoute: typeof ContactRoute
   TrackingRoute: typeof TrackingRoute
   VehiculesIdRoute: typeof VehiculesIdRoute
 }
@@ -78,11 +117,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/a-propos': {
+      id: '/a-propos'
+      path: '/a-propos'
+      fullPath: '/a-propos'
+      preLoaderRoute: typeof AProposRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/catalogue': {
       id: '/catalogue'
       path: '/catalogue'
       fullPath: '/catalogue'
       preLoaderRoute: typeof CatalogueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tracking': {
@@ -104,7 +157,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AProposRoute: AProposRoute,
   CatalogueRoute: CatalogueRoute,
+  ContactRoute: ContactRoute,
   TrackingRoute: TrackingRoute,
   VehiculesIdRoute: VehiculesIdRoute,
 }
