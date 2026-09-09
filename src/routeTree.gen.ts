@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AProposRouteImport } from './routes/a-propos'
 import { Route as CatalogueRouteImport } from './routes/catalogue'
 import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as VehiculesIdRouteImport } from './routes/vehicules.$id'
@@ -17,6 +18,11 @@ import { Route as VehiculesIdRouteImport } from './routes/vehicules.$id'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AProposRoute = AProposRouteImport.update({
+  id: '/a-propos',
+  path: '/a-propos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CatalogueRoute = CatalogueRouteImport.update({
@@ -37,12 +43,14 @@ const VehiculesIdRoute = VehiculesIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
   '/catalogue': typeof CatalogueRoute
   '/tracking': typeof TrackingRoute
   '/vehicules/$id': typeof VehiculesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
   '/catalogue': typeof CatalogueRoute
   '/tracking': typeof TrackingRoute
   '/vehicules/$id': typeof VehiculesIdRoute
@@ -50,20 +58,28 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
   '/catalogue': typeof CatalogueRoute
   '/tracking': typeof TrackingRoute
   '/vehicules/$id': typeof VehiculesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/catalogue' | '/tracking' | '/vehicules/$id'
+  fullPaths: '/' | '/a-propos' | '/catalogue' | '/tracking' | '/vehicules/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/catalogue' | '/tracking' | '/vehicules/$id'
-  id: '__root__' | '/' | '/catalogue' | '/tracking' | '/vehicules/$id'
+  to: '/' | '/a-propos' | '/catalogue' | '/tracking' | '/vehicules/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/a-propos'
+    | '/catalogue'
+    | '/tracking'
+    | '/vehicules/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AProposRoute: typeof AProposRoute
   CatalogueRoute: typeof CatalogueRoute
   TrackingRoute: typeof TrackingRoute
   VehiculesIdRoute: typeof VehiculesIdRoute
@@ -76,6 +92,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/a-propos': {
+      id: '/a-propos'
+      path: '/a-propos'
+      fullPath: '/a-propos'
+      preLoaderRoute: typeof AProposRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/catalogue': {
@@ -104,6 +127,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AProposRoute: AProposRoute,
   CatalogueRoute: CatalogueRoute,
   TrackingRoute: TrackingRoute,
   VehiculesIdRoute: VehiculesIdRoute,
