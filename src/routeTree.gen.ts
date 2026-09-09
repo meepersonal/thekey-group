@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AProposRouteImport } from './routes/a-propos'
 import { Route as CatalogueRouteImport } from './routes/catalogue'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as VehiculesIdRouteImport } from './routes/vehicules.$id'
 
@@ -30,6 +31,11 @@ const CatalogueRoute = CatalogueRouteImport.update({
   path: '/catalogue',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrackingRoute = TrackingRouteImport.update({
   id: '/tracking',
   path: '/tracking',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/a-propos': typeof AProposRoute
   '/catalogue': typeof CatalogueRoute
+  '/contact': typeof ContactRoute
   '/tracking': typeof TrackingRoute
   '/vehicules/$id': typeof VehiculesIdRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/a-propos': typeof AProposRoute
   '/catalogue': typeof CatalogueRoute
+  '/contact': typeof ContactRoute
   '/tracking': typeof TrackingRoute
   '/vehicules/$id': typeof VehiculesIdRoute
 }
@@ -60,19 +68,33 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/a-propos': typeof AProposRoute
   '/catalogue': typeof CatalogueRoute
+  '/contact': typeof ContactRoute
   '/tracking': typeof TrackingRoute
   '/vehicules/$id': typeof VehiculesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/a-propos' | '/catalogue' | '/tracking' | '/vehicules/$id'
+  fullPaths:
+    | '/'
+    | '/a-propos'
+    | '/catalogue'
+    | '/contact'
+    | '/tracking'
+    | '/vehicules/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/a-propos' | '/catalogue' | '/tracking' | '/vehicules/$id'
+  to:
+    | '/'
+    | '/a-propos'
+    | '/catalogue'
+    | '/contact'
+    | '/tracking'
+    | '/vehicules/$id'
   id:
     | '__root__'
     | '/'
     | '/a-propos'
     | '/catalogue'
+    | '/contact'
     | '/tracking'
     | '/vehicules/$id'
   fileRoutesById: FileRoutesById
@@ -81,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AProposRoute: typeof AProposRoute
   CatalogueRoute: typeof CatalogueRoute
+  ContactRoute: typeof ContactRoute
   TrackingRoute: typeof TrackingRoute
   VehiculesIdRoute: typeof VehiculesIdRoute
 }
@@ -108,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CatalogueRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tracking': {
       id: '/tracking'
       path: '/tracking'
@@ -129,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AProposRoute: AProposRoute,
   CatalogueRoute: CatalogueRoute,
+  ContactRoute: ContactRoute,
   TrackingRoute: TrackingRoute,
   VehiculesIdRoute: VehiculesIdRoute,
 }
