@@ -256,7 +256,7 @@ function Index() {
               variant="outline"
               className="border-navy-foreground/30 bg-transparent text-navy-foreground hover:bg-navy-foreground/10"
             >
-              <Link to="/tracking">Suivre mon conteneur</Link>
+              <Link to="/tracking" search={{ code: "" }}>Suivre mon conteneur</Link>
             </Button>
           </div>
         </div>

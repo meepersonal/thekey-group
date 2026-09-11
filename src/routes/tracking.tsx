@@ -4,7 +4,7 @@ import { TrackingPanel } from "@/components/tracking-panel";
 
 export const Route = createFileRoute("/tracking")({
   validateSearch: (search: Record<string, unknown>) => ({
-    code: typeof search.code === "string" ? search.code : "",
+    code: typeof search["code"] === "string" ? (search["code"] as string) : "",
   }),
   head: () => ({
     meta: [

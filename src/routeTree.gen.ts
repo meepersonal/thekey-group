@@ -16,6 +16,10 @@ import { Route as CatalogueRouteImport } from './routes/catalogue'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminCatalogueRouteImport } from './routes/admin.catalogue'
+import { Route as AdminConteneursRouteImport } from './routes/admin.conteneurs'
+import { Route as AdminParametresRouteImport } from './routes/admin.parametres'
+import { Route as AdminPrecommandesRouteImport } from './routes/admin.precommandes'
 import { Route as VehiculesIdRouteImport } from './routes/vehicules.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -53,6 +57,26 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCatalogueRoute = AdminCatalogueRouteImport.update({
+  id: '/catalogue',
+  path: '/catalogue',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminConteneursRoute = AdminConteneursRouteImport.update({
+  id: '/conteneurs',
+  path: '/conteneurs',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminParametresRoute = AdminParametresRouteImport.update({
+  id: '/parametres',
+  path: '/parametres',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPrecommandesRoute = AdminPrecommandesRouteImport.update({
+  id: '/precommandes',
+  path: '/precommandes',
+  getParentRoute: () => AdminRoute,
+} as any)
 const VehiculesIdRoute = VehiculesIdRouteImport.update({
   id: '/vehicules/$id',
   path: '/vehicules/$id',
@@ -66,6 +90,10 @@ export interface FileRoutesByFullPath {
   '/catalogue': typeof CatalogueRoute
   '/contact': typeof ContactRoute
   '/tracking': typeof TrackingRoute
+  '/admin/catalogue': typeof AdminCatalogueRoute
+  '/admin/conteneurs': typeof AdminConteneursRoute
+  '/admin/parametres': typeof AdminParametresRoute
+  '/admin/precommandes': typeof AdminPrecommandesRoute
   '/vehicules/$id': typeof VehiculesIdRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -75,6 +103,10 @@ export interface FileRoutesByTo {
   '/catalogue': typeof CatalogueRoute
   '/contact': typeof ContactRoute
   '/tracking': typeof TrackingRoute
+  '/admin/catalogue': typeof AdminCatalogueRoute
+  '/admin/conteneurs': typeof AdminConteneursRoute
+  '/admin/parametres': typeof AdminParametresRoute
+  '/admin/precommandes': typeof AdminPrecommandesRoute
   '/vehicules/$id': typeof VehiculesIdRoute
   '/admin': typeof AdminIndexRoute
 }
@@ -86,6 +118,10 @@ export interface FileRoutesById {
   '/catalogue': typeof CatalogueRoute
   '/contact': typeof ContactRoute
   '/tracking': typeof TrackingRoute
+  '/admin/catalogue': typeof AdminCatalogueRoute
+  '/admin/conteneurs': typeof AdminConteneursRoute
+  '/admin/parametres': typeof AdminParametresRoute
+  '/admin/precommandes': typeof AdminPrecommandesRoute
   '/vehicules/$id': typeof VehiculesIdRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -98,6 +134,10 @@ export interface FileRouteTypes {
     | '/catalogue'
     | '/contact'
     | '/tracking'
+    | '/admin/catalogue'
+    | '/admin/conteneurs'
+    | '/admin/parametres'
+    | '/admin/precommandes'
     | '/vehicules/$id'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -107,6 +147,10 @@ export interface FileRouteTypes {
     | '/catalogue'
     | '/contact'
     | '/tracking'
+    | '/admin/catalogue'
+    | '/admin/conteneurs'
+    | '/admin/parametres'
+    | '/admin/precommandes'
     | '/vehicules/$id'
     | '/admin'
   id:
@@ -117,6 +161,10 @@ export interface FileRouteTypes {
     | '/catalogue'
     | '/contact'
     | '/tracking'
+    | '/admin/catalogue'
+    | '/admin/conteneurs'
+    | '/admin/parametres'
+    | '/admin/precommandes'
     | '/vehicules/$id'
     | '/admin/'
   fileRoutesById: FileRoutesById
@@ -182,6 +230,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/catalogue': {
+      id: '/admin/catalogue'
+      path: '/catalogue'
+      fullPath: '/admin/catalogue'
+      preLoaderRoute: typeof AdminCatalogueRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/conteneurs': {
+      id: '/admin/conteneurs'
+      path: '/conteneurs'
+      fullPath: '/admin/conteneurs'
+      preLoaderRoute: typeof AdminConteneursRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/parametres': {
+      id: '/admin/parametres'
+      path: '/parametres'
+      fullPath: '/admin/parametres'
+      preLoaderRoute: typeof AdminParametresRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/precommandes': {
+      id: '/admin/precommandes'
+      path: '/precommandes'
+      fullPath: '/admin/precommandes'
+      preLoaderRoute: typeof AdminPrecommandesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/vehicules/$id': {
       id: '/vehicules/$id'
       path: '/vehicules/$id'
@@ -193,10 +269,18 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminCatalogueRoute: typeof AdminCatalogueRoute
+  AdminConteneursRoute: typeof AdminConteneursRoute
+  AdminParametresRoute: typeof AdminParametresRoute
+  AdminPrecommandesRoute: typeof AdminPrecommandesRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminCatalogueRoute: AdminCatalogueRoute,
+  AdminConteneursRoute: AdminConteneursRoute,
+  AdminParametresRoute: AdminParametresRoute,
+  AdminPrecommandesRoute: AdminPrecommandesRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

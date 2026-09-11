@@ -47,7 +47,7 @@ export const Route = createFileRoute("/admin/precommandes")({
       },
     ],
   }),
-  component: AdminOrders;
+  component: AdminOrders,
 });
 
 const STATUSES: OrderStatus[] = [
@@ -261,9 +261,10 @@ function AdminOrders() {
                   <Select
                     value={selected.containerCode ?? "none"}
                     onValueChange={(v) => {
-                      updateOrder(selected.id, {
-                        containerCode: v === "none" ? undefined : v,
-                      });
+                      updateOrder(
+                        selected.id,
+                        v === "none" ? { containerCode: "" } : { containerCode: v },
+                      );
                       toast.success(
                         v === "none" ? "Conteneur dissocié." : `Dossier associé à ${v}.`,
                       );

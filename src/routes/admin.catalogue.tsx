@@ -43,7 +43,7 @@ import {
 import suvWhite from "@/assets/car-suv-white.jpg";
 
 export const Route = createFileRoute("/admin/catalogue")({
-  validateSearch: (s: Record<string, unknown>) => ({ new: s.new === true || s.new === "true" }),
+  validateSearch: (s: Record<string, unknown>) => ({ new: s["new"] === true || s["new"] === "true" }),
   head: () => ({
     meta: [
       { title: "Gestion du catalogue — Back-Office AutoTrack Bénin" },
