@@ -47,7 +47,7 @@ export const Route = createFileRoute("/admin/precommandes")({
       },
     ],
   }),
-  component: AdminOrders;
+  component: AdminOrders,
 });
 
 const STATUSES: OrderStatus[] = [
