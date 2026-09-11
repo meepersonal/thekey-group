@@ -17,6 +17,8 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminCatalogueRouteImport } from './routes/admin.catalogue'
+import { Route as AdminConteneursRouteImport } from './routes/admin.conteneurs'
+import { Route as AdminParametresRouteImport } from './routes/admin.parametres'
 import { Route as AdminPrecommandesRouteImport } from './routes/admin.precommandes'
 import { Route as VehiculesIdRouteImport } from './routes/vehicules.$id'
 
@@ -60,6 +62,16 @@ const AdminCatalogueRoute = AdminCatalogueRouteImport.update({
   path: '/catalogue',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminConteneursRoute = AdminConteneursRouteImport.update({
+  id: '/conteneurs',
+  path: '/conteneurs',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminParametresRoute = AdminParametresRouteImport.update({
+  id: '/parametres',
+  path: '/parametres',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPrecommandesRoute = AdminPrecommandesRouteImport.update({
   id: '/precommandes',
   path: '/precommandes',
@@ -79,6 +91,8 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/tracking': typeof TrackingRoute
   '/admin/catalogue': typeof AdminCatalogueRoute
+  '/admin/conteneurs': typeof AdminConteneursRoute
+  '/admin/parametres': typeof AdminParametresRoute
   '/admin/precommandes': typeof AdminPrecommandesRoute
   '/vehicules/$id': typeof VehiculesIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -90,6 +104,8 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/tracking': typeof TrackingRoute
   '/admin/catalogue': typeof AdminCatalogueRoute
+  '/admin/conteneurs': typeof AdminConteneursRoute
+  '/admin/parametres': typeof AdminParametresRoute
   '/admin/precommandes': typeof AdminPrecommandesRoute
   '/vehicules/$id': typeof VehiculesIdRoute
   '/admin': typeof AdminIndexRoute
@@ -103,6 +119,8 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/tracking': typeof TrackingRoute
   '/admin/catalogue': typeof AdminCatalogueRoute
+  '/admin/conteneurs': typeof AdminConteneursRoute
+  '/admin/parametres': typeof AdminParametresRoute
   '/admin/precommandes': typeof AdminPrecommandesRoute
   '/vehicules/$id': typeof VehiculesIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -117,6 +135,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/tracking'
     | '/admin/catalogue'
+    | '/admin/conteneurs'
+    | '/admin/parametres'
     | '/admin/precommandes'
     | '/vehicules/$id'
     | '/admin/'
@@ -128,6 +148,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/tracking'
     | '/admin/catalogue'
+    | '/admin/conteneurs'
+    | '/admin/parametres'
     | '/admin/precommandes'
     | '/vehicules/$id'
     | '/admin'
@@ -140,6 +162,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/tracking'
     | '/admin/catalogue'
+    | '/admin/conteneurs'
+    | '/admin/parametres'
     | '/admin/precommandes'
     | '/vehicules/$id'
     | '/admin/'
@@ -213,6 +237,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCatalogueRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/conteneurs': {
+      id: '/admin/conteneurs'
+      path: '/conteneurs'
+      fullPath: '/admin/conteneurs'
+      preLoaderRoute: typeof AdminConteneursRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/parametres': {
+      id: '/admin/parametres'
+      path: '/parametres'
+      fullPath: '/admin/parametres'
+      preLoaderRoute: typeof AdminParametresRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/precommandes': {
       id: '/admin/precommandes'
       path: '/precommandes'
@@ -232,12 +270,16 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminCatalogueRoute: typeof AdminCatalogueRoute
+  AdminConteneursRoute: typeof AdminConteneursRoute
+  AdminParametresRoute: typeof AdminParametresRoute
   AdminPrecommandesRoute: typeof AdminPrecommandesRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCatalogueRoute: AdminCatalogueRoute,
+  AdminConteneursRoute: AdminConteneursRoute,
+  AdminParametresRoute: AdminParametresRoute,
   AdminPrecommandesRoute: AdminPrecommandesRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
