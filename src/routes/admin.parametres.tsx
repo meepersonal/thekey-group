@@ -115,8 +115,8 @@ function AdminSettings() {
                 variant="accent"
                 onClick={() => {
                   const v = newBrand.trim().toUpperCase();
-                  if (!v) return toast.error("Saisissez un nom de marque.");
-                  if (brands.includes(v)) return toast.error("Cette marque existe déjà.");
+                  if (!v) { toast.error("Saisissez un nom de marque."); return; }
+                  if (brands.includes(v)) { toast.error("Cette marque existe déjà."); return; }
                   setBrands((p) => [...p, v]);
                   setNewBrand("");
                   toast.success(`Marque ${v} ajoutée.`);
@@ -147,8 +147,8 @@ function AdminSettings() {
                 variant="accent"
                 onClick={() => {
                   const v = newCategory.trim();
-                  if (!v) return toast.error("Saisissez une catégorie.");
-                  if (categories.includes(v)) return toast.error("Cette catégorie existe déjà.");
+                  if (!v) { toast.error("Saisissez une catégorie."); return; }
+                  if (categories.includes(v)) { toast.error("Cette catégorie existe déjà."); return; }
                   setCategories((p) => [...p, v]);
                   setNewCategory("");
                   toast.success(`Catégorie ${v} ajoutée.`);
@@ -190,8 +190,10 @@ function AdminSettings() {
                 variant="accent"
                 onClick={() => {
                   const price = Number(optPrice);
-                  if (!optLabel.trim() || !price)
-                    return toast.error("Renseignez un nom et un prix valides.");
+                  if (!optLabel.trim() || !price) {
+                    toast.error("Renseignez un nom et un prix valides.");
+                    return;
+                  }
                   setOptions((p) => [
                     ...p,
                     { id: crypto.randomUUID(), label: optLabel.trim(), price },

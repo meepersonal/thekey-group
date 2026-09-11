@@ -45,7 +45,7 @@ export function SiteHeader() {
             </Link>
           ))}
           <Button asChild variant="accent" size="default" className="ml-2">
-            <Link to="/tracking">
+            <Link to="/tracking" search={{ code: "" }}>
               <Search className="h-4 w-4" />
               Rechercher un conteneur
             </Link>
@@ -77,7 +77,7 @@ export function SiteHeader() {
               </Link>
             ))}
             <Button asChild variant="accent" size="lg" className="mt-2">
-              <Link to="/tracking" onClick={() => setOpen(false)}>
+              <Link to="/tracking" search={{ code: "" }} onClick={() => setOpen(false)}>
                 <Search className="h-4 w-4" />
                 Rechercher un conteneur
               </Link>

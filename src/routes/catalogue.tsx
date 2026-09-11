@@ -117,7 +117,7 @@ function CataloguePage() {
             </div>
             <Slider
               value={[maxPrice]}
-              onValueChange={(v) => setMaxPrice(v[0])}
+              onValueChange={(v) => setMaxPrice(v[0] ?? MAX_PRICE)}
               min={5000000}
               max={MAX_PRICE}
               step={500000}
