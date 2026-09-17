@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, BatteryCharging, Check, Cog, Fuel, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { PreorderForm } from "@/components/preorder-form";
-import { OPTIONS, formatFcfa, formatUsd, getVehicle } from "@/data/vehicles";
+import { formatFcfa, formatUsd, getVehicle } from "@/data/vehicles";
 
 export const Route = createFileRoute("/vehicules/$id")({
   loader: ({ params }) => {
@@ -41,13 +41,7 @@ export const Route = createFileRoute("/vehicules/$id")({
 function VehiclePage() {
   const { vehicle } = Route.useLoaderData();
   const [imageIndex, setImageIndex] = useState(0);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
-  const selected = useMemo(() => OPTIONS.filter((o) => selectedIds.includes(o.id)), [selectedIds]);
-  const total = vehicle.priceFcfa + selected.reduce((s, o) => s + o.price, 0);
-
-  const toggle = (id: string) =>
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  const total = vehicle.priceFcfa;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
@@ -154,48 +148,10 @@ function VehiclePage() {
               </span>
             </div>
 
-            <div className="mt-6 border-t border-border pt-5">
-              <h2 className="text-sm font-bold uppercase tracking-wide">Personnalisez votre véhicule</h2>
-              <div className="mt-3 space-y-2">
-                {OPTIONS.map((o) => {
-                  const active = selectedIds.includes(o.id);
-                  return (
-                    <button
-                      key={o.id}
-                      onClick={() => toggle(o.id)}
-                      className={
-                        "flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors " +
-                        (active ? "border-accent bg-accent/10" : "border-border hover:bg-secondary")
-                      }
-                    >
-                      <span className="flex min-w-0 items-center gap-3">
-                        <span
-                          className={
-                            "grid h-5 w-5 shrink-0 place-items-center rounded-md border " +
-                            (active ? "border-accent bg-accent text-accent-foreground" : "border-border")
-                          }
-                        >
-                          {active && <Check className="h-3.5 w-3.5" />}
-                        </span>
-                        <span className="truncate font-medium">{o.label}</span>
-                      </span>
-                      <span className="shrink-0 text-xs font-bold text-muted-foreground">
-                        +{formatFcfa(o.price)}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             <div className="mt-6 rounded-xl bg-gradient-navy p-5 text-navy-foreground">
               <div className="flex items-center justify-between text-sm text-navy-foreground/70">
-                <span>Prix de base</span>
+                <span>Prix estimé</span>
                 <span>{formatFcfa(vehicle.priceFcfa)}</span>
-              </div>
-              <div className="mt-1 flex items-center justify-between text-sm text-navy-foreground/70">
-                <span>Options ({selected.length})</span>
-                <span>+{formatFcfa(total - vehicle.priceFcfa)}</span>
               </div>
               <div className="mt-3 flex items-end justify-between border-t border-navy-foreground/15 pt-3">
                 <span className="text-sm font-semibold">Total estimé</span>
@@ -211,7 +167,7 @@ function VehiclePage() {
             </Button>
           </div>
 
-          <PreorderForm vehicle={vehicle} selected={selected} total={total} />
+          <PreorderForm vehicle={vehicle} selected={[]} total={total} />
         </div>
       </div>
     </div>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 const links = [
   { to: "/", label: "Accueil" },
   { to: "/catalogue", label: "Catalogue" },
-  { to: "/tracking", label: "Tracking Conteneur" },
+  { to: "/partenaires", label: "Devenir un partenaire de Key Group" },
   { to: "/a-propos", label: "À Propos" },
   { to: "/contact", label: "Contact" },
 ] as const;

@@ -14,6 +14,7 @@ import { Route as AProposRouteImport } from './routes/a-propos'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CatalogueRouteImport } from './routes/catalogue'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as PartenairesRouteImport } from './routes/partenaires'
 import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminCatalogueRouteImport } from './routes/admin.catalogue'
@@ -45,6 +46,11 @@ const CatalogueRoute = CatalogueRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartenairesRoute = PartenairesRouteImport.update({
+  id: '/partenaires',
+  path: '/partenaires',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrackingRoute = TrackingRouteImport.update({
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/catalogue': typeof CatalogueRoute
   '/contact': typeof ContactRoute
+  '/partenaires': typeof PartenairesRoute
   '/tracking': typeof TrackingRoute
   '/admin/catalogue': typeof AdminCatalogueRoute
   '/admin/conteneurs': typeof AdminConteneursRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/a-propos': typeof AProposRoute
   '/catalogue': typeof CatalogueRoute
   '/contact': typeof ContactRoute
+  '/partenaires': typeof PartenairesRoute
   '/tracking': typeof TrackingRoute
   '/admin/catalogue': typeof AdminCatalogueRoute
   '/admin/conteneurs': typeof AdminConteneursRoute
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/catalogue': typeof CatalogueRoute
   '/contact': typeof ContactRoute
+  '/partenaires': typeof PartenairesRoute
   '/tracking': typeof TrackingRoute
   '/admin/catalogue': typeof AdminCatalogueRoute
   '/admin/conteneurs': typeof AdminConteneursRoute
@@ -133,6 +142,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/catalogue'
     | '/contact'
+    | '/partenaires'
     | '/tracking'
     | '/admin/catalogue'
     | '/admin/conteneurs'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/a-propos'
     | '/catalogue'
     | '/contact'
+    | '/partenaires'
     | '/tracking'
     | '/admin/catalogue'
     | '/admin/conteneurs'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/catalogue'
     | '/contact'
+    | '/partenaires'
     | '/tracking'
     | '/admin/catalogue'
     | '/admin/conteneurs'
@@ -175,6 +187,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   CatalogueRoute: typeof CatalogueRoute
   ContactRoute: typeof ContactRoute
+  PartenairesRoute: typeof PartenairesRoute
   TrackingRoute: typeof TrackingRoute
   VehiculesIdRoute: typeof VehiculesIdRoute
 }
@@ -214,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partenaires': {
+      id: '/partenaires'
+      path: '/partenaires'
+      fullPath: '/partenaires'
+      preLoaderRoute: typeof PartenairesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tracking': {
@@ -292,6 +312,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   CatalogueRoute: CatalogueRoute,
   ContactRoute: ContactRoute,
+  PartenairesRoute: PartenairesRoute,
   TrackingRoute: TrackingRoute,
   VehiculesIdRoute: VehiculesIdRoute,
 }
