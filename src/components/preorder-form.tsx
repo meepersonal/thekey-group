@@ -32,15 +32,13 @@ export function PreorderForm({ vehicle, selected, total }: Props) {
   });
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const optionsText = selected.length
-    ? selected.map((o) => `- ${o.label} (${formatFcfa(o.price)})`).join("\n")
-    : "- Aucune option supplémentaire";
+  const optionsText = selected.map((o) => `- ${o.label} (${formatFcfa(o.price)})`).join("\n");
+  const optionSummary = selected.length ? `\nOptions :\n${optionsText}` : "";
 
   const summary = `Nouvelle précommande — AutoTrack Bénin
 Véhicule : ${vehicle.brand} ${vehicle.model} (${vehicle.year})
 État : ${vehicle.condition}
-Options :
-${optionsText}
+${optionSummary}
 Total estimé : ${formatFcfa(total)} (≈ ${formatUsd(total)})
 
 Client : ${form.name}
@@ -76,12 +74,13 @@ Notes : ${form.notes || "—"}`;
       <tr><td>Année</td><td>${vehicle.year}</td></tr>
       <tr><td>État</td><td>${vehicle.condition}</td></tr>
       <tr><td>Prix de base</td><td>${formatFcfa(vehicle.priceFcfa)}</td></tr></table>
-      <h2>Options sélectionnées</h2><table>
-      ${
-        selected.length
-          ? selected.map((o) => `<tr><td>${o.label}</td><td>${formatFcfa(o.price)}</td></tr>`).join("")
-          : "<tr><td>Aucune option</td><td>—</td></tr>"
-      }</table>
+       ${
+         selected.length
+           ? `<h2>Options sélectionnées</h2><table>${selected
+               .map((o) => `<tr><td>${o.label}</td><td>${formatFcfa(o.price)}</td></tr>`)
+               .join("")}</table>`
+           : ""
+       }
       <p class="total">Total estimé : ${formatFcfa(total)} (≈ ${formatUsd(total)})</p>
       <h2>Client</h2><table>
       <tr><td>Nom</td><td>${form.name}</td></tr>
@@ -120,9 +119,7 @@ Notes : ${form.notes || "—"}`;
               <p className="truncate font-bold">
                 {vehicle.brand} {vehicle.model}
               </p>
-              <p className="text-xs text-muted-foreground">
-                {selected.length} option(s) — {vehicle.condition}
-              </p>
+              <p className="text-xs text-muted-foreground">{vehicle.condition}</p>
             </div>
           </div>
           <div className="mt-3 flex items-baseline justify-between border-t border-border pt-3">

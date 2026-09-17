@@ -27,8 +27,8 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
-              <Link to="/tracking" search={{ code: "" }} className="hover:text-accent">
-                Suivi de conteneur
+              <Link to="/partenaires" className="hover:text-accent">
+                Devenir partenaire
               </Link>
             </li>
             <li>
