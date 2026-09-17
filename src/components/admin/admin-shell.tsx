@@ -54,7 +54,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
               "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors",
               active
                 ? "bg-accent text-accent-foreground"
-                : "text-navy-foreground/70 hover:bg-white/10 hover:text-navy-foreground",
+                : "text-navy-foreground/70 hover:bg-navy-foreground/10 hover:text-navy-foreground",
             )}
           >
             <item.icon className="h-[18px] w-[18px] shrink-0" />
@@ -91,7 +91,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <div className="mt-auto px-3">
           <button
             onClick={() => setCollapsed((v) => !v)}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-navy-foreground/70 hover:bg-white/10"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-navy-foreground/70 hover:bg-navy-foreground/10"
           >
             <ChevronLeft className={cn("h-[18px] w-[18px] transition", collapsed && "rotate-180")} />
             {!collapsed && "Réduire le menu"}
@@ -102,7 +102,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       {/* Mobile drawer */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
+          <div className="absolute inset-0 bg-foreground/50" onClick={() => setMobileOpen(false)} />
           <aside className="absolute inset-y-0 left-0 w-72 bg-gradient-navy py-4 text-navy-foreground">
             <div className="mb-6 flex items-center gap-3 px-5">
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent text-accent-foreground">
