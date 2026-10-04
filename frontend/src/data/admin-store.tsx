@@ -1,326 +1,658 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  api,
+  type Vehicle,
+  type Preorder,
+  type Container,
+  type Brand,
+  type Category,
+  type Agence,
+} from "@/lib/api";
+import { toast } from "sonner";
 
-export type AdminVehicleStatus = "En Stock" | "Sur Commande" | "Masqué";
-export type AdminOption = { id: string; label: string; price: number };
+import type {
+  Vehicle as ApiVehicle,
+  Preorder as ApiPreorder,
+  VehicleOption as ApiVehicleOption,
+} from "@/lib/api";
 
-export type AdminVehicle = {
-  id: string;
-  brand: string;
-  model: string;
-  year: number;
-  category: string;
-  energy: string;
-  transmission: string;
-  mileageKm: number;
-  battery?: string;
-  priceFcfa: number;
-  status: AdminVehicleStatus;
-  featured: boolean;
-  image: string;
-  options: AdminOption[];
-};
+export type AdminVehicleStatus = ApiVehicle["status"];
+export type OrderStatus = ApiPreorder["status"];
 
-export type OrderStatus = "Nouvelle demande" | "Prise en charge" | "Acompte Versé" | "Annulée";
-
-export type AdminOrder = {
-  id: string;
-  clientName: string;
-  phone: string;
-  email: string;
-  city: string;
-  vehicle: string;
-  options: AdminOption[];
-  basePrice: number;
-  date: string;
-  status: OrderStatus;
-  containerCode?: string;
-};
-
-export type ContainerStage = 0 | 1 | 2 | 3 | 4;
-
-export type AdminContainer = {
-  code: string;
-  vessel: string;
-  portDepart: string;
-  stage: ContainerStage;
-  eta: string;
-  client: string;
-  note: string;
-};
+export type {
+  Vehicle,
+  Preorder,
+  Container,
+  Brand,
+  Category,
+  Agence,
+  VehicleImage,
+  VehicleOption,
+  SiteSettings,
+} from "@/lib/api";
 
 export const CONTAINER_STAGES = [
-  "Commande confirmée / Préparation en Chine",
-  "Chargement au Port de Départ",
-  "En Transit Maritime",
-  "Arrivé au Port de Cotonou / Dédouanement",
-  "Véhicule Prêt / Livré au Client",
-];
-
-export const BRANDS = ["BYD", "CHANGAN", "JETOUR", "GAC", "CHERY"];
-export const ADMIN_CATEGORIES = ["SUV", "Berline", "Utilitaire", "Électrique", "Hybride", "Pick-up"];
-
-import suvWhite from "@/assets/car-suv-white.jpg";
-import sedanBlue from "@/assets/car-sedan-blue.jpg";
-import pickupGrey from "@/assets/car-pickup-grey.jpg";
-
-const initialVehicles: AdminVehicle[] = [
-  {
-    id: "v1",
-    brand: "BYD",
-    model: "Song Plus EV",
-    year: 2026,
-    category: "Électrique",
-    energy: "100% Électrique",
-    transmission: "Automatique",
-    mileageKm: 0,
-    battery: "Blade 71,8 kWh — 505 km",
-    priceFcfa: 18500000,
-    status: "En Stock",
-    featured: true,
-    image: suvWhite,
-    options: [
-      { id: "o1", label: "Caméra 360°", price: 150000 },
-      { id: "o2", label: "Chargeur rapide 7 kW", price: 250000 },
-    ],
-  },
-  {
-    id: "v2",
-    brand: "CHANGAN",
-    model: "UNI-K",
-    year: 2025,
-    category: "Hybride",
-    energy: "Hybride",
-    transmission: "Automatique 8 rapports",
-    mileageKm: 0,
-    priceFcfa: 21000000,
-    status: "Sur Commande",
-    featured: true,
-    image: pickupGrey,
-    options: [{ id: "o3", label: "Sièges cuir ventilés", price: 400000 }],
-  },
-  {
-    id: "v3",
-    brand: "JETOUR",
-    model: "Dashing",
-    year: 2026,
-    category: "SUV",
-    energy: "Essence",
-    transmission: "Automatique 7 DCT",
-    mileageKm: 0,
-    priceFcfa: 14500000,
-    status: "En Stock",
-    featured: false,
-    image: sedanBlue,
-    options: [{ id: "o4", label: "Teinte de vitres", price: 150000 }],
-  },
-  {
-    id: "v4",
-    brand: "GAC",
-    model: "Emkoo",
-    year: 2026,
-    category: "Hybride",
-    energy: "Hybride",
-    transmission: "Automatique",
-    mileageKm: 0,
-    priceFcfa: 16000000,
-    status: "Masqué",
-    featured: false,
-    image: suvWhite,
-    options: [],
-  },
-  {
-    id: "v5",
-    brand: "CHERY",
-    model: "Tiggo 8 Pro",
-    year: 2024,
-    category: "SUV",
-    energy: "Essence",
-    transmission: "Automatique 7 DCT",
-    mileageKm: 18500,
-    priceFcfa: 13200000,
-    status: "En Stock",
-    featured: false,
-    image: pickupGrey,
-    options: [{ id: "o5", label: "Barres de toit", price: 120000 }],
-  },
-  {
-    id: "v6",
-    brand: "BYD",
-    model: "Seal",
-    year: 2026,
-    category: "Berline",
-    energy: "100% Électrique",
-    transmission: "Automatique",
-    mileageKm: 0,
-    battery: "Blade 82,5 kWh — 570 km",
-    priceFcfa: 24500000,
-    status: "Sur Commande",
-    featured: true,
-    image: sedanBlue,
-    options: [{ id: "o6", label: "Jantes alliage 19″", price: 620000 }],
-  },
-];
-
-const initialOrders: AdminOrder[] = [
-  {
-    id: "RES-2026-001",
-    clientName: "Koffi MENSAH",
-    phone: "+229 97 00 11 22",
-    email: "koffi.mensah@example.bj",
-    city: "Cotonou",
-    vehicle: "BYD Song Plus EV",
-    options: [
-      { id: "o1", label: "Caméra 360°", price: 150000 },
-      { id: "o2", label: "Chargeur rapide 7 kW", price: 250000 },
-    ],
-    basePrice: 18500000,
-    date: "2026-08-12",
-    status: "Acompte Versé",
-    containerCode: "CONT-2026-BYD88",
-  },
-  {
-    id: "RES-2026-002",
-    clientName: "Sègla DOSSOU",
-    phone: "+229 95 33 44 55",
-    email: "segla.dossou@example.bj",
-    city: "Calavi",
-    vehicle: "Changan UNI-K",
-    options: [{ id: "o3", label: "Sièges cuir ventilés", price: 400000 }],
-    basePrice: 21000000,
-    date: "2026-08-20",
-    status: "Prise en charge",
-    containerCode: "CONT-2026-JET99",
-  },
-  {
-    id: "RES-2026-003",
-    clientName: "Adjovi SOGLO",
-    phone: "+229 96 12 78 90",
-    email: "adjovi.soglo@example.bj",
-    city: "Porto-Novo",
-    vehicle: "Jetour Dashing",
-    options: [{ id: "o4", label: "Teinte de vitres", price: 150000 }],
-    basePrice: 14500000,
-    date: "2026-09-01",
-    status: "Nouvelle demande",
-  },
-  {
-    id: "RES-2026-004",
-    clientName: "Sté Logibenin",
-    phone: "+229 94 55 66 77",
-    email: "contact@logibenin.bj",
-    city: "Cotonou",
-    vehicle: "GAC Emkoo",
-    options: [],
-    basePrice: 16000000,
-    date: "2026-09-04",
-    status: "Nouvelle demande",
-  },
-  {
-    id: "RES-2026-005",
-    clientName: "Rachidi DOSSOU",
-    phone: "+229 91 22 33 44",
-    email: "rachidi.d@example.bj",
-    city: "Parakou",
-    vehicle: "BYD Seal",
-    options: [{ id: "o6", label: "Jantes alliage 19″", price: 620000 }],
-    basePrice: 24500000,
-    date: "2026-09-08",
-    status: "Annulée",
-  },
-];
-
-const initialContainers: AdminContainer[] = [
-  {
-    code: "CONT-2026-BYD88",
-    vessel: "MSC ANTONIA",
-    portDepart: "Shanghai",
-    stage: 2,
-    eta: "2026-09-25",
-    client: "Koffi MENSAH",
-    note: "Position actuelle : Golfe de Guinée",
-  },
-  {
-    code: "CONT-2026-JET99",
-    vessel: "CMA CGM BENIN",
-    portDepart: "Ningbo",
-    stage: 3,
-    eta: "2026-09-12",
-    client: "Sègla DOSSOU",
-    note: "Dédouanement en cours au Port de Cotonou",
-  },
-  {
-    code: "CONT-2026-GAC42",
-    vessel: "OOCL LAGOS",
-    portDepart: "Guangzhou",
-    stage: 1,
-    eta: "2026-10-18",
-    client: "Sté Logibenin",
-    note: "Chargement prévu ce vendredi",
-  },
+  "Commande effectuée depuis la Chine",
+  "Démarrage du bateau depuis la Chine",
+  "En transit maritime",
+  "Arrivé au port",
+  "Dédouanement en cours",
+  "Dédouané",
+  "En livraison",
 ];
 
 export const fcfa = (n: number) => new Intl.NumberFormat("fr-FR").format(Math.round(n)) + " FCFA";
 
-export const orderTotal = (o: AdminOrder) =>
-  o.basePrice + o.options.reduce((s, x) => s + x.price, 0);
+export const orderTotal = (o: Preorder) =>
+  (o.base_price ?? 0) + (o.options?.reduce((s, x) => s + (x.price ?? 0), 0) ?? 0);
 
-type Ctx = {
-  vehicles: AdminVehicle[];
-  orders: AdminOrder[];
-  containers: AdminContainer[];
-  saveVehicle: (v: AdminVehicle) => void;
-  deleteVehicle: (id: string) => void;
-  updateOrder: (id: string, patch: Partial<AdminOrder>) => void;
-  updateContainer: (code: string, patch: Partial<AdminContainer>) => void;
-};
-
-const AdminCtx = createContext<Ctx | null>(null);
-
-export function AdminStoreProvider({ children }: { children: ReactNode }) {
-  const [vehicles, setVehicles] = useState(initialVehicles);
-  const [orders, setOrders] = useState(initialOrders);
-  const [containers, setContainers] = useState(initialContainers);
-
-  const saveVehicle = useCallback((v: AdminVehicle) => {
-    setVehicles((prev) =>
-      prev.some((x) => x.id === v.id) ? prev.map((x) => (x.id === v.id ? v : x)) : [v, ...prev],
-    );
-  }, []);
-  const deleteVehicle = useCallback(
-    (id: string) => setVehicles((prev) => prev.filter((v) => v.id !== id)),
-    [],
-  );
-  const updateOrder = useCallback(
-    (id: string, patch: Partial<AdminOrder>) =>
-      setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, ...patch } : o))),
-    [],
-  );
-  const updateContainer = useCallback(
-    (code: string, patch: Partial<AdminContainer>) =>
-      setContainers((prev) => prev.map((c) => (c.code === code ? { ...c, ...patch } : c))),
-    [],
-  );
-
-  const value = useMemo(
-    () => ({
-      vehicles,
-      orders,
-      containers,
-      saveVehicle,
-      deleteVehicle,
-      updateOrder,
-      updateContainer,
-    }),
-    [vehicles, orders, containers, saveVehicle, deleteVehicle, updateOrder, updateContainer],
-  );
-
-  return <AdminCtx.Provider value={value}>{children}</AdminCtx.Provider>;
+export function useVehicles(params?: Record<string, string>) {
+  return useQuery({
+    queryKey: ["vehicles", params],
+    queryFn: () => api.getVehicles(params),
+    staleTime: 30_000,
+  });
 }
 
-export function useAdmin() {
-  const ctx = useContext(AdminCtx);
-  if (!ctx) throw new Error("useAdmin must be used within AdminStoreProvider");
-  return ctx;
+export function useVehicle(id: number | string) {
+  return useQuery({
+    queryKey: ["vehicle", id],
+    queryFn: () => api.getVehicle(id).then((r) => r.data),
+    staleTime: 30_000,
+  });
+}
+
+export function useBrands() {
+  return useQuery({
+    queryKey: ["brands"],
+    queryFn: () => api.getBrands(true).then((r) => r.data),
+    staleTime: 60_000,
+  });
+}
+
+export function useCategories() {
+  return useQuery({
+    queryKey: ["categories"],
+    queryFn: () => api.getCategories(true).then((r) => r.data),
+    staleTime: 60_000,
+  });
+}
+
+/* ═══════════════════════════════════════════════
+ * Marques (admin)
+ * ═══════════════════════════════════════════════ */
+export function useAdminBrands() {
+  return useQuery({
+    queryKey: ["admin-brands"],
+    queryFn: () => api.getAdminBrands().then((r) => r.data),
+    staleTime: 60_000,
+  });
+}
+
+export function useCreateBrand() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.createBrand,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-brands"] });
+      toast.success("Marque ajoutée.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useUpdateBrand() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number | string; data: Partial<Brand> }) =>
+      api.updateBrand(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-brands"] });
+      toast.success("Marque mise à jour.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useDeleteBrand() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.deleteBrand,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-brands"] });
+      toast.success("Marque supprimée.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+/* ═══════════════════════════════════════════════
+ * Catégories (admin)
+ * ═══════════════════════════════════════════════ */
+export function useAdminCategories() {
+  return useQuery({
+    queryKey: ["admin-categories"],
+    queryFn: () => api.getAdminCategories().then((r) => r.data),
+    staleTime: 60_000,
+  });
+}
+
+export function useCreateCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.createCategory,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-categories"] });
+      toast.success("Catégorie ajoutée.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useUpdateCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number | string; data: Partial<Category> }) =>
+      api.updateCategory(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-categories"] });
+      toast.success("Catégorie mise à jour.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useDeleteCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.deleteCategory,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-categories"] });
+      toast.success("Catégorie supprimée.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+/* ═══════════════════════════════════════════════
+ * Agences (admin)
+ * ═══════════════════════════════════════════════ */
+export function useAgences() {
+  return useQuery({
+    queryKey: ["agences"],
+    queryFn: () => api.getAgences().then((r) => r.data),
+    staleTime: 60_000,
+  });
+}
+
+export function useCreateAgence() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.createAgence,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["agences"] });
+      toast.success("Agence ajoutée.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useUpdateAgence() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number | string; data: Partial<Agence> }) =>
+      api.updateAgence(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["agences"] });
+      toast.success("Agence mise à jour.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useDeleteAgence() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.deleteAgence,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["agences"] });
+      toast.success("Agence supprimée.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function usePreorders(params?: Record<string, string>) {
+  return useQuery({
+    queryKey: ["preorders", params],
+    queryFn: () => api.getPreorders(params),
+    staleTime: 30_000,
+  });
+}
+
+export function useCreatePreorder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Parameters<typeof api.createPreorder>[0]) => api.createPreorder(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["preorders"] });
+      toast.success("Précommande enregistrée.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useContainers(params?: Record<string, string>) {
+  return useQuery({
+    queryKey: ["containers", params],
+    queryFn: () => api.getContainers(params),
+    staleTime: 30_000,
+  });
+}
+
+export function useContainer(code: string | null) {
+  return useQuery({
+    queryKey: ["container", code],
+    queryFn: () => api.getContainer(code as string).then((r) => r.data),
+    enabled: Boolean(code),
+    staleTime: 15_000,
+  });
+}
+
+export function useAddContainerEvent() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      code,
+      data,
+    }: {
+      code: string;
+      data: {
+        stage: number;
+        event_date: string;
+        location?: string | null;
+        comments?: string | null;
+        update_stage?: boolean;
+      };
+    }) => api.addContainerEvent(code, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["containers"] });
+      qc.invalidateQueries({ queryKey: ["container"] });
+      toast.success("Étape ajoutée au suivi.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useDeleteContainerEvent() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ code, eventId }: { code: string; eventId: number | string }) =>
+      api.deleteContainerEvent(code, eventId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["containers"] });
+      qc.invalidateQueries({ queryKey: ["container"] });
+      toast.success("Étape supprimée.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useCreateVehicle() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.createVehicle,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["vehicles"] });
+      toast.success("Véhicule ajouté.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useUpdateVehicle() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number | string; data: Partial<Vehicle> }) =>
+      api.updateVehicle(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["vehicles"] });
+      toast.success("Véhicule mis à jour.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useDeleteVehicle() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.deleteVehicle,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["vehicles"] });
+      toast.success("Véhicule supprimé.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useVehicleStatuses() {
+  return useQuery({
+    queryKey: ["vehicle-statuses"],
+    queryFn: () => api.getVehicleStatuses().then((r) => r.data),
+    staleTime: 300_000,
+  });
+}
+
+export function useVehicleEnergyTypes() {
+  return useQuery({
+    queryKey: ["vehicle-energy-types"],
+    queryFn: () => api.getVehicleEnergyTypes().then((r) => r.data),
+    staleTime: 300_000,
+  });
+}
+
+export function useVehicleTransmissionTypes() {
+  return useQuery({
+    queryKey: ["vehicle-transmission-types"],
+    queryFn: () => api.getVehicleTransmissionTypes().then((r) => r.data),
+    staleTime: 300_000,
+  });
+}
+
+/* ═══════════════════════════════════════════════
+ * Utilisateurs (admin)
+ * ═══════════════════════════════════════════════ */
+const USERS_KEY = "admin-users";
+
+function invalidateUsers(qc: ReturnType<typeof useQueryClient>) {
+  qc.invalidateQueries({ queryKey: [USERS_KEY] });
+}
+
+export function useUsers(params?: Record<string, string>) {
+  return useQuery({
+    queryKey: [USERS_KEY, params],
+    queryFn: () => api.getUsers(params),
+    staleTime: 30_000,
+  });
+}
+
+export function useUserRoles() {
+  return useQuery({
+    queryKey: [USERS_KEY, "roles"],
+    queryFn: () => api.getUserRoles().then((r) => r.data),
+    staleTime: 600_000,
+  });
+}
+
+export function useCreateUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Parameters<typeof api.createUser>[0]) => api.createUser(data),
+    onSuccess: (response) => {
+      invalidateUsers(qc);
+      toast.success(
+        response.credentials_sent
+          ? "Utilisateur créé. Identifiants envoyés par e-mail."
+          : "Utilisateur créé.",
+      );
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useUpdateUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: number | string;
+      data: { name?: string; email?: string; password?: string; role?: string };
+    }) => api.updateUser(id, data),
+    onSuccess: () => {
+      invalidateUsers(qc);
+      toast.success("Utilisateur mis à jour.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useToggleUserBlock() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number | string) => api.toggleUserBlock(id),
+    onSuccess: (res) => {
+      invalidateUsers(qc);
+      toast.success(res.data.is_blocked ? "Compte bloqué." : "Compte réactivé.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useDeleteUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number | string) => api.deleteUser(id),
+    onSuccess: () => {
+      invalidateUsers(qc);
+      toast.success("Utilisateur supprimé.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+/* ═══════════════════════════════════════════════
+ * Statistiques pages véhicules (admin)
+ * ═══════════════════════════════════════════════ */
+export type StatsOverviewParams = {
+  months?: number;
+  from?: string;
+  to?: string;
+  granularity?: "day" | "month";
+};
+
+export function useStatsOverview(params: StatsOverviewParams | number = 6) {
+  const normalized: StatsOverviewParams = typeof params === "number" ? { months: params } : params;
+
+  return useQuery({
+    queryKey: ["stats-overview", normalized],
+    queryFn: () => api.getStatsOverview(normalized).then((r) => r.data),
+    staleTime: 60_000,
+  });
+}
+
+export function useDashboardStats(months = 6) {
+  return useQuery({
+    queryKey: ["stats-dashboard", months],
+    queryFn: () => api.getDashboardStats(months).then((r) => r.data),
+    staleTime: 60_000,
+  });
+}
+
+export function useVehicleStats(id: number | string | undefined, days = 30) {
+  return useQuery({
+    queryKey: ["stats-vehicle", id, days],
+    queryFn: () => api.getVehicleStats(id as string, days).then((r) => r.data),
+    enabled: Boolean(id),
+    staleTime: 60_000,
+  });
+}
+
+/* ═══════════════════════════════════════════════
+ * Options de véhicule (admin)
+ * ═══════════════════════════════════════════════ */
+export function useSyncVehicleOptions() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      vehicleId,
+      options,
+    }: {
+      vehicleId: number | string;
+      options: ApiVehicleOption[];
+    }) => api.syncVehicleOptions(vehicleId, options),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["vehicles"] });
+      toast.success("Options mises à jour.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useDeleteVehicleOption() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      vehicleId,
+      optionId,
+    }: {
+      vehicleId: number | string;
+      optionId: number | string;
+    }) => api.destroyVehicleOption(vehicleId, optionId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["vehicles"] });
+      toast.success("Option supprimée.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+/* ═══════════════════════════════════════════════
+ * Images de véhicule (admin)
+ * ═══════════════════════════════════════════════ */
+export function useUploadVehicleImages() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ vehicleId, files }: { vehicleId: number | string; files: File[] }) =>
+      api.uploadVehicleImages(vehicleId, files),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["vehicles"] });
+      toast.success(`${data.data.length} image(s) téléchargée(s).`);
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useDeleteVehicleImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      vehicleId,
+      imageId,
+    }: {
+      vehicleId: number | string;
+      imageId: number | string;
+    }) => api.deleteVehicleImage(vehicleId, imageId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["vehicles"] });
+      toast.success("Image supprimée.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useUpdatePreorder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number | string; data: Partial<Preorder> }) =>
+      api.updatePreorder(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["preorders"] });
+      toast.success("Précommande mise à jour.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useDeletePreorder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.deletePreorder,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["preorders"] });
+      toast.success("Précommande supprimée.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useCreateContainer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.createContainer,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["containers"] });
+      toast.success("Conteneur ajouté.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useUpdateContainer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ code, data }: { code: string; data: Partial<Container> }) =>
+      api.updateContainer(code, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["containers"] });
+      toast.success("Conteneur mis à jour.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useDeleteContainer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.deleteContainer,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["containers"] });
+      toast.success("Conteneur supprimé.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+/* ═══════════════════════════════════════════════
+ * Médias (upload logo / favicon)
+ * ═══════════════════════════════════════════════ */
+export function useSettings() {
+  return useQuery({
+    queryKey: ["settings"],
+    queryFn: () => api.getSettings().then((r) => r.data),
+    staleTime: 60_000,
+  });
+}
+
+export function useUpdateSettings() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.updateSettings,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["settings"] });
+      toast.success("Configuration enregistrée.");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useUploadImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ file, type }: { file: File; type?: "logo" | "favicon" }) =>
+      api.uploadMedia(file, type),
+    onSuccess: (res, { type }) => {
+      // L'upload écrit site_logo / site_favicon côté API : on invalide les caches
+      // pour que l'aperçu, l'en-tête et l'onglet du navigateur soient à jour.
+      qc.invalidateQueries({ queryKey: ["settings"] });
+      qc.invalidateQueries({ queryKey: ["public-settings"] });
+      toast.success(type === "favicon" ? "Favicon mis à jour." : "Logo mis à jour.", {
+        description: res.data.path,
+      });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
 }
 
 export const ORDERS_BY_MONTH = [

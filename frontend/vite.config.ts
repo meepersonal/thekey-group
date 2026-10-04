@@ -1,15 +1,34 @@
-// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
-// or the app will break with duplicate plugins:
-//   - TanStack devtools (dev-only, first), tanstackStart, viteReact, tailwindcss, tsConfigPaths,
-//     nitro (build-only using cloudflare as a default target), VITE_* env injection, @ path alias,
-//     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
-// You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { defineConfig, loadEnv } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
-export default defineConfig({
-  tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
-    server: { entry: "server" },
-  },
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "VITE_");
+  const siteUrl = env["VITE_SITE_URL"] ?? "";
+
+  if (mode === "production" && /localhost|127\.0\.0\.1/.test(siteUrl)) {
+    console.warn(
+      `\n[seo] VITE_SITE_URL vaut « ${siteUrl} » : les balises canonical, og:url et les liens\n` +
+        `     du back-office seront figés sur cette adresse dans le build de production.\n` +
+        `     Définissez VITE_SITE_URL sur le domaine public avant de builder.\n`,
+    );
+  }
+
+  return {
+    plugins: [react(), tailwindcss()],
+    resolve: {
+      tsconfigPaths: true,
+    },
+    server: {
+      host: "0.0.0.0",
+      port: 8081,
+      proxy: {
+        "/api": {
+          target: "http://localhost:8000",
+          changeOrigin: true,
+          secure: false,
+        },
+      },
+    },
+  };
 });

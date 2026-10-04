@@ -13,7 +13,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { waLink } from "@/data/tracking";
-import { formatFcfa, formatUsd, type Vehicle, type VehicleOption } from "@/data/vehicles";
+import { formatFcfa, formatUsd } from "@/data/vehicles";
+import { ImageWithFallback } from "@/components/image-with-fallback";
+import { vehicleImageUrl } from "@/lib/image";
+import type { Vehicle, VehicleOption } from "@/lib/api";
 
 type Props = {
   vehicle: Vehicle;
@@ -22,6 +25,7 @@ type Props = {
 };
 
 export function PreorderForm({ vehicle, selected, total }: Props) {
+  const cover = vehicleImageUrl(vehicle);
   const [form, setForm] = useState({
     name: "",
     dial: "+229",
@@ -73,13 +77,14 @@ Notes : ${form.notes || "—"}`;
       <tr><td>Modèle</td><td><b>${vehicle.brand} ${vehicle.model}</b></td></tr>
       <tr><td>Année</td><td>${vehicle.year}</td></tr>
       <tr><td>État</td><td>${vehicle.condition}</td></tr>
-      <tr><td>Prix de base</td><td>${formatFcfa(vehicle.priceFcfa)}</td></tr></table>
-       ${selected.length
-        ? `<h2>Options sélectionnées</h2><table>${selected
-          .map((o) => `<tr><td>${o.label}</td><td>${formatFcfa(o.price)}</td></tr>`)
-          .join("")}</table>`
-        : ""
-      }
+      <tr><td>Prix de base</td><td>${formatFcfa(vehicle.price_fcfa)}</td></tr></table>
+       ${
+         selected.length
+           ? `<h2>Options sélectionnées</h2><table>${selected
+               .map((o) => `<tr><td>${o.label}</td><td>${formatFcfa(o.price)}</td></tr>`)
+               .join("")}</table>`
+           : ""
+       }
       <p class="total">Total estimé : ${formatFcfa(total)} (≈ ${formatUsd(total)})</p>
       <h2>Client</h2><table>
       <tr><td>Nom</td><td>${form.name}</td></tr>
@@ -106,12 +111,12 @@ Notes : ${form.notes || "—"}`;
 
         <div className="rounded-xl bg-secondary p-4">
           <div className="flex items-center gap-3">
-            <img
-              src={vehicle.images[0]}
+            <ImageWithFallback
+              src={cover}
               alt={vehicle.model}
-              loading="lazy"
               width={1200}
               height={800}
+              wrapperClassName="h-16 w-24 shrink-0 rounded-lg"
               className="h-16 w-24 shrink-0 rounded-lg object-cover"
             />
             <div className="min-w-0">
@@ -234,7 +239,8 @@ Notes : ${form.notes || "—"}`;
             </Button>
             <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
               <FileText className="h-3.5 w-3.5" />
-              Référence : PRE-{vehicle.id.toUpperCase().slice(0, 6)}-{Date.now().toString().slice(-4)}
+              Référence : PRE-{String(vehicle.id).toUpperCase().slice(0, 6)}-
+              {Date.now().toString().slice(-4)}
             </p>
           </div>
         </DialogContent>

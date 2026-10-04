@@ -1,27 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "@/lib/router";
 import { Anchor, Building2, Globe2, HeartHandshake, Ship, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroPort from "@/assets/hero-port.jpg";
-
-export const Route = createFileRoute("/a-propos")({
-  head: () => ({
-    meta: [
-      { title: "À propos — AutoTrack Bénin, importateur de véhicules chinois" },
-      {
-        name: "description",
-        content:
-          "AutoTrack Bénin accompagne les particuliers et entreprises dans l'importation de véhicules chinois : sourcing, transport maritime, dédouanement et livraison à Cotonou.",
-      },
-      { property: "og:title", content: "À propos — AutoTrack Bénin" },
-      {
-        property: "og:description",
-        content:
-          "Notre mission : rendre l'importation de véhicules depuis la Chine simple, transparente et traçable pour le Bénin.",
-      },
-    ],
-  }),
-  component: AboutPage,
-});
 
 const VALUES = [
   {
@@ -60,7 +40,7 @@ const TIMELINE = [
   { year: "2026", text: "Plus de 480 véhicules livrés au Bénin et dans la sous-région." },
 ];
 
-function AboutPage() {
+export function AboutPage() {
   return (
     <div>
       <section className="relative overflow-hidden">

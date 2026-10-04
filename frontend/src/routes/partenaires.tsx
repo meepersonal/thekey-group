@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "@/lib/router";
 import {
   ArrowRight,
   BadgeCheck,
@@ -48,29 +48,7 @@ const steps = [
   { title: "Suivi", text: "Chaque dossier partenaire est suivi avec visibilité sur la commande, le navire et la livraison." },
 ] as const;
 
-export const Route = createFileRoute("/partenaires")({
-  head: () => ({
-    meta: [
-      { title: "Devenir partenaire Key Group — Import auto Chine Bénin" },
-      {
-        name: "description",
-        content:
-          "Rejoignez le réseau partenaire Key Group pour développer l'importation de véhicules chinois au Bénin avec suivi maritime et accompagnement commercial.",
-      },
-      { property: "og:title", content: "Devenir partenaire Key Group" },
-      {
-        property: "og:description",
-        content:
-          "Un programme partenaire pour revendeurs, entreprises et apporteurs d'affaires dans l'import automobile Chine-Bénin.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: PartnersPage,
-});
-
-function PartnersPage() {
+export function PartnersPage() {
   return (
     <div>
       <section className="relative overflow-hidden bg-navy text-navy-foreground">
