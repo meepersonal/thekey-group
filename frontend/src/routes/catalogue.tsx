@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import {
-  Search,
-  Car,
-  AlertTriangle,
-  X,
-  ArrowRight,
-} from "lucide-react";
+import { Search, Car, AlertTriangle, X, ArrowRight, SlidersHorizontal } from "lucide-react";
 import { Link } from "@/lib/router";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,6 +39,7 @@ export function CataloguePage() {
   const [category, setCategory] = useState("");
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE);
   const [page, setPage] = useState(1);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -95,10 +90,10 @@ export function CataloguePage() {
 
   return (
     <div className="bg-white min-h-screen font-sans text-gray-900">
-
       {/* ANIMATIONS CSS */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
@@ -107,26 +102,34 @@ export function CataloguePage() {
           opacity: 0;
           animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-      `}} />
+      `,
+        }}
+      />
 
       {/* TITRE DE LA PAGE */}
       <div className="mx-auto max-w-[1400px] px-4 pt-10 pb-6 lg:px-8">
         <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-black">
-          Catalogue <span className="text-emerald-600">Équipements</span>
+          Catalogue véhicules
         </h1>
         <p className="mt-3 text-gray-500 max-w-2xl text-sm leading-relaxed">
-          Découvrez notre gamme complète de véhicules et engins, conçus pour les nouvelles énergies et les chantiers exigeants.
+          Découvrez notre gamme complète de véhicules et engins, conçus pour les nouvelles énergies
+          et les chantiers exigeants.
         </p>
       </div>
 
-      {/* BARRE DE FILTRES */}
-      <div className="border-y border-gray-200 bg-gray-50 sticky top-0 z-20">
+      {/* ═══════════════════════════════════════════════════════
+          BARRE DE FILTRES (Non fixe, dans le flux)
+      ═══════════════════════════════════════════════════════ */}
+      <div className="border-y border-gray-200 bg-gray-50">
         <div className="mx-auto max-w-[1400px] px-4 py-4 lg:px-8">
-          <div className="flex flex-col lg:flex-row lg:items-end gap-4">
-
+          {/* Version Desktop : Tous les filtres sur une ligne */}
+          <div className="hidden lg:flex lg:items-end lg:gap-4">
             {/* Recherche */}
             <div className="flex-1 min-w-[200px]">
-              <Label htmlFor="q" className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+              <Label
+                htmlFor="q"
+                className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5"
+              >
                 <Search className="h-3 w-3" /> Recherche
               </Label>
               <div className="relative group">
@@ -150,8 +153,11 @@ export function CataloguePage() {
             </div>
 
             {/* Marque */}
-            <div className="w-full lg:w-44">
-              <Label htmlFor="brand" className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+            <div className="w-44">
+              <Label
+                htmlFor="brand"
+                className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5"
+              >
                 Marque
               </Label>
               <select
@@ -159,18 +165,27 @@ export function CataloguePage() {
                 value={brand}
                 onChange={(e) => updateFilter(setBrand)(e.target.value)}
                 className="h-10 w-full border border-gray-300 bg-white px-2.5 text-sm rounded-none focus:outline-none focus:border-emerald-600 transition-colors appearance-none cursor-pointer hover:border-gray-400"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 10px center",
+                }}
               >
                 <option value="">Toutes les marques</option>
                 {brands?.map((b) => (
-                  <option key={b.id} value={b.name}>{b.name}</option>
+                  <option key={b.id} value={b.name}>
+                    {b.name}
+                  </option>
                 ))}
               </select>
             </div>
 
             {/* Catégorie */}
-            <div className="w-full lg:w-44">
-              <Label htmlFor="cat" className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+            <div className="w-44">
+              <Label
+                htmlFor="cat"
+                className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5"
+              >
                 Catégorie
               </Label>
               <select
@@ -178,29 +193,36 @@ export function CataloguePage() {
                 value={category}
                 onChange={(e) => updateFilter(setCategory)(e.target.value)}
                 className="h-10 w-full border border-gray-300 bg-white px-2.5 text-sm rounded-none focus:outline-none focus:border-emerald-600 transition-colors appearance-none cursor-pointer hover:border-gray-400"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 10px center",
+                }}
               >
                 <option value="">Toutes les catégories</option>
                 {categories?.map((c) => (
-                  <option key={c.id} value={c.name}>{c.name}</option>
+                  <option key={c.id} value={c.name}>
+                    {c.name}
+                  </option>
                 ))}
               </select>
             </div>
 
             {/* Budget */}
-            <div className="w-full lg:w-56">
+            <div className="w-56">
               <div className="flex items-center justify-between mb-1.5">
                 <Label className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
                   Budget max
                 </Label>
-                <span className="text-xs font-bold text-emerald-600">
-                  {formatFcfa(maxPrice)}
-                </span>
+                <span className="text-xs font-bold text-emerald-600">{formatFcfa(maxPrice)}</span>
               </div>
               <div className="h-10 flex items-center px-1">
                 <Slider
                   value={[maxPrice]}
-                  onValueChange={(v) => { setMaxPrice(v[0] ?? MAX_PRICE); setPage(1); }}
+                  onValueChange={(v) => {
+                    setMaxPrice(v[0] ?? MAX_PRICE);
+                    setPage(1);
+                  }}
                   min={0}
                   max={MAX_PRICE}
                   step={500000}
@@ -210,7 +232,7 @@ export function CataloguePage() {
             </div>
 
             {/* Reset Button */}
-            <div className="lg:ml-auto pb-1">
+            <div className="ml-auto pb-1">
               {hasActiveFilters && (
                 <button
                   type="button"
@@ -222,18 +244,132 @@ export function CataloguePage() {
                 </button>
               )}
             </div>
+          </div>
 
+          {/* Version Mobile : Barre compacte avec bouton "Filtres" */}
+          <div className="lg:hidden">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Input
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="Rechercher..."
+                  className="h-10 pl-9 pr-8 border border-gray-300 rounded-none bg-white text-sm"
+                />
+                {searchInput && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchInput("")}
+                    className="absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 place-items-center text-gray-400"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className={`flex items-center gap-1.5 h-10 px-3 border text-xs font-bold uppercase tracking-wider transition-colors ${
+                  hasActiveFilters
+                    ? "border-emerald-600 bg-emerald-50 text-emerald-600"
+                    : "border-gray-300 bg-white text-gray-600"
+                }`}
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5" />
+                Filtres
+                {hasActiveFilters && (
+                  <span className="ml-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] text-white">
+                    !
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Filtres mobiles dépliés */}
+            {isFilterOpen && (
+              <div className="mt-4 space-y-4 pt-4 border-t border-gray-200 animate-in slide-in-from-top-2 duration-300">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+                      Marque
+                    </Label>
+                    <select
+                      value={brand}
+                      onChange={(e) => updateFilter(setBrand)(e.target.value)}
+                      className="h-10 w-full border border-gray-300 bg-white px-2.5 text-sm rounded-none focus:outline-none focus:border-emerald-600"
+                    >
+                      <option value="">Toutes les marques</option>
+                      {brands?.map((b) => (
+                        <option key={b.id} value={b.name}>
+                          {b.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <Label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+                      Catégorie
+                    </Label>
+                    <select
+                      value={category}
+                      onChange={(e) => updateFilter(setCategory)(e.target.value)}
+                      className="h-10 w-full border border-gray-300 bg-white px-2.5 text-sm rounded-none focus:outline-none focus:border-emerald-600"
+                    >
+                      <option value="">Toutes les catégories</option>
+                      {categories?.map((c) => (
+                        <option key={c.id} value={c.name}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <Label className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                      Budget max
+                    </Label>
+                    <span className="text-xs font-bold text-emerald-600">
+                      {formatFcfa(maxPrice)}
+                    </span>
+                  </div>
+                  <Slider
+                    value={[maxPrice]}
+                    onValueChange={(v) => {
+                      setMaxPrice(v[0] ?? MAX_PRICE);
+                      setPage(1);
+                    }}
+                    min={0}
+                    max={MAX_PRICE}
+                    step={500000}
+                    className="[&_[role=slider]]:rounded-none [&_[role=slider]]:border-emerald-600 [&_[role=slider]]:bg-white [&_[role=slider]]:h-4 [&_[role=slider]]:w-4 [&_.bg-primary]:bg-emerald-600 [&_.bg-secondary]:bg-gray-200"
+                  />
+                </div>
+                {hasActiveFilters && (
+                  <button
+                    onClick={resetFilters}
+                    className="w-full h-9 border border-gray-300 bg-white text-xs font-bold uppercase tracking-wider text-gray-600 hover:border-emerald-600 hover:text-emerald-600 transition-colors"
+                  >
+                    Effacer tous les filtres
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* GRILLE PRINCIPALE */}
       <section className="mx-auto max-w-[1400px] px-4 py-8 lg:px-8">
-
         <div className="flex items-center justify-between mb-5 pb-3 border-b border-gray-200">
           <p className="text-sm text-gray-500">
-            {isLoading ? "Chargement..." : (
-              <><span className="font-bold text-black uppercase tracking-tight">{total}</span> résultat{total > 1 ? "s" : ""}</>
+            {isLoading ? (
+              "Chargement..."
+            ) : (
+              <>
+                <span className="font-bold text-black uppercase tracking-tight">{total}</span>{" "}
+                résultat{total > 1 ? "s" : ""}
+              </>
             )}
           </p>
         </div>
@@ -253,7 +389,8 @@ export function CataloguePage() {
             {totalPages > 1 && (
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t-2 border-black pt-4">
                 <p className="text-sm text-gray-500">
-                  Page <span className="font-bold text-black">{currentPage}</span> sur <span className="font-bold text-black">{totalPages}</span>
+                  Page <span className="font-bold text-black">{currentPage}</span> sur{" "}
+                  <span className="font-bold text-black">{totalPages}</span>
                 </p>
                 <div className="flex items-center gap-2">
                   <Button
@@ -307,7 +444,6 @@ function CatalogueVehicleCard({ vehicle, index }: { vehicle: CatalogueVehicle; i
       style={{ animationDelay: `${index * 80}ms` }}
     >
       <Link to={to} className="flex flex-col flex-1 h-full">
-
         {/* 1. EN-TÊTE */}
         <div className="p-4 pb-0 h-[88px] flex flex-col justify-start">
           <p className="text-[13px] text-gray-500 mb-0.5 line-clamp-1 h-[18px]">
@@ -374,8 +510,15 @@ function EmptyState({ onReset }: { onReset: () => void }) {
     <div className="flex flex-col items-center justify-center gap-3 border border-gray-300 px-6 py-16 text-center">
       <Car className="h-8 w-8 text-gray-400" />
       <p className="font-bold text-black uppercase">Aucun équipement trouvé</p>
-      <p className="max-w-sm text-sm text-gray-500">Essayez de modifier vos critères de recherche.</p>
-      <Button variant="outline" size="sm" className="mt-2 rounded-none border-black text-black hover:bg-emerald-600 hover:border-emerald-600 hover:text-white uppercase text-xs font-bold transition-all duration-300" onClick={onReset}>
+      <p className="max-w-sm text-sm text-gray-500">
+        Essayez de modifier vos critères de recherche.
+      </p>
+      <Button
+        variant="outline"
+        size="sm"
+        className="mt-2 rounded-none border-black text-black hover:bg-emerald-600 hover:border-emerald-600 hover:text-white uppercase text-xs font-bold transition-all duration-300"
+        onClick={onReset}
+      >
         Réinitialiser les filtres
       </Button>
     </div>
