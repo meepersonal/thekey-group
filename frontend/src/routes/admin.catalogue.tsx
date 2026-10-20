@@ -361,13 +361,14 @@ function ImageCarousel({ images }: { images: VehicleImage[] }) {
   }
 
   const current = images[index];
+  const currentUrl = vehicleImageUrl({ vehicle_images: images }, index);
 
   return (
     <div className="space-y-2.5">
       <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-secondary/40 to-secondary/10">
         <img
           key={current.id}
-          src={current.url}
+          src={currentUrl}
           alt={`Image ${index + 1}`}
           className="h-full w-full object-contain transition-all duration-300"
         />
@@ -408,14 +409,13 @@ function ImageCarousel({ images }: { images: VehicleImage[] }) {
               type="button"
               onClick={() => setIndex(i)}
               aria-label={`Voir l'image ${i + 1}`}
-              className={`relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
-                i === index
-                  ? "border-accent ring-2 ring-accent/20"
-                  : "border-border opacity-60 hover:opacity-100"
-              }`}
+              className={`relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${i === index
+                ? "border-accent ring-2 ring-accent/20"
+                : "border-border opacity-60 hover:opacity-100"
+                }`}
             >
               <img
-                src={img.url}
+                src={vehicleImageUrl({ vehicle_images: images }, i)}
                 alt={`Miniature ${i + 1}`}
                 className="h-full w-full object-cover"
               />
@@ -490,13 +490,12 @@ function ImageDropzone({
         }
       }}
       aria-disabled={isDisabled}
-      className={`relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 text-center transition-all duration-200 ${
-        isDisabled
-          ? "cursor-not-allowed border-border/60 bg-secondary/30 opacity-60"
-          : isDragging
-            ? "scale-[1.01] border-accent bg-accent/5 shadow-lg shadow-accent/10"
-            : "border-border bg-secondary/20 hover:border-accent/60 hover:bg-accent/5"
-      }`}
+      className={`relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 text-center transition-all duration-200 ${isDisabled
+        ? "cursor-not-allowed border-border/60 bg-secondary/30 opacity-60"
+        : isDragging
+          ? "scale-[1.01] border-accent bg-accent/5 shadow-lg shadow-accent/10"
+          : "border-border bg-secondary/20 hover:border-accent/60 hover:bg-accent/5"
+        }`}
     >
       <input
         ref={inputRef}
@@ -512,11 +511,10 @@ function ImageDropzone({
       />
 
       <span
-        className={`grid h-10 w-10 place-items-center rounded-full transition-all duration-200 ${
-          isDragging
-            ? "scale-110 bg-accent text-accent-foreground"
-            : "bg-secondary text-muted-foreground"
-        }`}
+        className={`grid h-10 w-10 place-items-center rounded-full transition-all duration-200 ${isDragging
+          ? "scale-110 bg-accent text-accent-foreground"
+          : "bg-secondary text-muted-foreground"
+          }`}
       >
         {isUploading ? (
           <Loader2 className="h-5 w-5 animate-spin" />
@@ -709,12 +707,27 @@ export function AdminCatalogue() {
   }, [vehicles]);
 
   useEffect(() => {
-    if (search.new) {
+    if (search["new"]) {
       setEditing({ ...emptyVehicle() });
       setPendingImages([]);
-      navigate({ search: { new: false }, replace: true });
+      const { new: _, ...rest } = search;
+      navigate("", { search: rest, replace: true });
     }
-  }, [search.new, navigate]);
+  }, [search["new"], navigate, search]);
+
+  useEffect(() => {
+    const editId = search["edit"];
+    if (editId) {
+      const vehicle = vehicles.find((v) => String(v.id) === editId);
+      if (vehicle) {
+        setEditing(vehicle);
+        setPendingImages([]);
+      } else {
+        const { edit: _, ...rest } = search;
+        navigate("", { search: rest, replace: true });
+      }
+    }
+  }, [search["edit"], vehicles, navigate, search]);
 
   useEffect(() => {
     if (editing) {
@@ -774,9 +787,9 @@ export function AdminCatalogue() {
           });
           setPendingImages([]);
         }
-        setEditing({ ...saved, options: optionInputs });
-        setOptionInputs(saved.options?.map((o) => ({ ...o, vehicle_id: saved.id })) ?? []);
+        toast.success(`${saved.brand} ${saved.model} créé avec succès.`);
         refetch();
+        setEditing(null);
       }
     } catch {
       // error handled by mutation
@@ -1086,7 +1099,7 @@ export function AdminCatalogue() {
                   Statut
                 </th>
                 <th className="hidden px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground xl:table-cell">
-                  Ajouté le
+                  Créé
                 </th>
                 <th className="w-[120px] px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Actions
@@ -1144,10 +1157,10 @@ export function AdminCatalogue() {
                     <span className="text-sm text-muted-foreground">
                       {v.created_at
                         ? new Date(v.created_at).toLocaleDateString("fr-FR", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })
                         : "—"}
                     </span>
                   </td>
@@ -1480,10 +1493,10 @@ export function AdminCatalogue() {
                   Ajouté le{" "}
                   {viewing.created_at
                     ? new Date(viewing.created_at).toLocaleDateString("fr-FR", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
                     : "—"}
                 </p>
                 <div className="flex w-full gap-2 sm:w-auto">

@@ -30,17 +30,36 @@ export const IMAGE_FALLBACK = fallbackImage;
  * Normalise une URL d'image venant du backend.
  *
  * Les URL absolues (`http:`, `https:`, `//cdn…`, `data:`, `blob:`) sont renvoyées
- * telles quelles. Les chemins relatifs sont préfixés par `VITE_API_URL` afin de
- * rester corrects quand l'API est servie sur un autre hôte que le front, et un
- * nom de fichier nu (`vehicles/x.jpg`) est rattaché au disque `public`.
+ * telles quelles, SAUF si elles contiennent `/storage/` ou `/api/v1/media/` (alors on force
+ * `/public/storage/` car le serveur sert les fichiers à cet emplacement).
+ * Les chemins relatifs sont préfixés par `VITE_API_URL` afin de
+ * rester corrects quand l'API est servie sur un autre hôte que le front.
+ * Le backend peut renvoyer `/storage/...`, `storage/...`, `media/...` ou `/api/v1/media/...` — on normalise vers
+ * `/public/storage/...` qui est le chemin web accessible.
  * Renvoie `null` pour une source vide, ce qui permet d'afficher le placeholder.
  */
 export function resolveImageUrl(url?: string | null): string | null {
   const value = typeof url === "string" ? url.trim() : "";
   if (!value) return null;
-  if (ABSOLUTE.test(value)) return value;
-  if (value.startsWith("/")) return `${API_BASE}${value}`;
-  return `${API_BASE}${STORAGE_PREFIX}${value.replace(/^\/+/, "")}`;
+
+  // Normalize any URL containing /storage/ or /api/v1/media/ -> /public/storage/
+  let normalized = value;
+  if (normalized.includes("/storage/")) {
+    normalized = normalized.replace(/\/storage\//, "/public/storage/");
+  } else if (normalized.includes("/api/v1/media/")) {
+    // Backend via_route=true returns /api/v1/media/media/vehicles/xxx.jpg
+    // Extract the path after /api/v1/media/ and prefix with /public/storage/
+    const mediaPath = normalized.split("/api/v1/media/")[1];
+    normalized = `/public/storage/${mediaPath}`;
+  } else if (normalized.startsWith("storage/")) {
+    normalized = "/public/storage/" + normalized.replace(/^storage\//, "");
+  } else if (normalized.startsWith("media/")) {
+    normalized = "/public/storage/" + normalized;
+  }
+
+  if (ABSOLUTE.test(normalized)) return normalized;
+  if (normalized.startsWith("/")) return `${API_BASE}${normalized}`;
+  return `${API_BASE}${STORAGE_PREFIX}${normalized.replace(/^\/+/, "")}`;
 }
 
 /** `true` si la source produit une URL exploitable. */

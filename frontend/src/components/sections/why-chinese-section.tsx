@@ -44,16 +44,12 @@ export function WhyChineseSection({ items }: WhyChineseSectionProps) {
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* ─── Header ─── */}
-        {/* ─── Header ─── */}
         <div className="mb-12 sm:mb-16 md:mb-20">
           <span className="block text-xs font-bold uppercase tracking-widest text-primary sm:text-sm">
-            01 — Méthode
+            02 — Méthode
           </span>
           <h2 className="mt-3 font-display text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
-            De la précommande{" "}
-            <span className="bg-gradient-to-r from-white via-white/90 to-primary bg-clip-text text-transparent">
-              à l&apos;entretien.
-            </span>
+            De la précommande à l'entretien.
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-400 sm:text-lg">
             Un parcours fluide, transparent et sans friction — de votre première visite à la réception

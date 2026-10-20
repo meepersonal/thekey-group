@@ -1,8 +1,8 @@
 import { Link } from "@/lib/router";
+import { usePublicAgences, usePublicSettings } from "@/data/public-store";
 import {
   Mail,
   MapPin,
-  Phone,
   Ship,
   ArrowRight,
   Facebook,
@@ -10,14 +10,8 @@ import {
   Linkedin,
   Youtube,
   MessageCircle,
+  Phone,
 } from "lucide-react";
-
-const SOCIALS = [
-  { icon: Facebook, label: "Facebook", href: "https://facebook.com/thekeygroup" },
-  { icon: Instagram, label: "Instagram", href: "https://instagram.com/thekeygroup" },
-  { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/company/thekeygroup" },
-  { icon: Youtube, label: "YouTube", href: "https://youtube.com/@thekeygroup" },
-];
 
 const NAV_LINKS = [
   { to: "/catalogue", label: "Catalogue véhicules" },
@@ -26,52 +20,82 @@ const NAV_LINKS = [
   { to: "/contact", label: "Contact" },
 ];
 
-const AGENCIES = [
-  { city: "Paris", country: "France" },
-  { city: "Lyon", country: "France" },
-  { city: "Cotonou", country: "Bénin" },
-  { city: "Ningbo", country: "Chine" },
-];
-
 export function SiteFooter() {
+  const { data: agences } = usePublicAgences();
+  const { data: settings } = usePublicSettings();
+
+  // Helper: build socials map from settings
+  const socialsMap = new Map<string, string>();
+  settings?.socials?.forEach((s) => {
+    if (s.url) socialsMap.set(s.platform.toLowerCase(), s.url);
+  });
+  if (settings?.facebook_url) socialsMap.set("facebook", settings.facebook_url);
+  if (settings?.instagram_url) socialsMap.set("instagram", settings.instagram_url);
+  if (settings?.linkedin_url) socialsMap.set("linkedin", settings.linkedin_url);
+  const socials = Array.from(socialsMap.entries()).map(([platform, url]) => ({ platform, url }));
+
+  // Helper: get primary phone from phones array or fallback
+  const primaryPhone = settings?.phones?.find((p) => p.label === "Standard")?.value
+    || settings?.phones?.[0]?.value
+    || settings?.support_phone
+    || "+229 97 00 00 00";
+
+  // Helper: get WhatsApp phone
+  const whatsappPhone = settings?.phones?.find((p) => p.label === "WhatsApp")?.value
+    || settings?.whatsapp_number
+    || "+229 97 00 00 00";
+
+  // Helper: get primary email
+  const primaryEmail = settings?.email_contact || "info@thekeygroup.com";
+
+  // Helper: get addresses
+  const addresses = settings?.addresses?.length
+    ? settings.addresses.map((a) => a.value).join(" · ")
+    : "Ningbo, Chine · Cotonou, Bénin";
+
+  // Social icons map
+  const iconMap: Record<string, typeof Facebook> = {
+    facebook: Facebook,
+    instagram: Instagram,
+    linkedin: Linkedin,
+    youtube: Youtube,
+  };
   return (
     <footer className="relative overflow-hidden border-t border-background/10 bg-foreground text-background">
       <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-20">
-
         {/* Grille principale */}
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
-
           {/* Colonne 1 — Marque */}
           <div className="lg:col-span-4">
             <Link to="/" className="inline-flex items-center gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-xl border border-background/10 bg-background/5 text-accent">
                 <Ship className="h-5 w-5" />
               </span>
-              <span className="font-display text-lg font-extrabold">
-                The Key Group
-              </span>
+              <span className="font-display text-lg font-extrabold">The Key Group</span>
             </Link>
 
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-background/60">
-              Importateur et distributeur officiel de véhicules chinois.
-              Personnalisation sur-mesure, suivi maritime en temps réel
-              et SAV local jusqu'à la remise des clés.
+              Importateur et distributeur officiel de véhicules chinois. Personnalisation
+              sur-mesure, suivi maritime en temps réel et SAV local jusqu'à la remise des clés.
             </p>
 
             {/* Réseaux sociaux */}
             <div className="mt-6 flex items-center gap-2">
-              {SOCIALS.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={s.label}
-                  className="grid h-9 w-9 place-items-center rounded-lg border border-background/10 bg-background/5 text-background/70 transition-colors hover:border-background/20 hover:bg-background/10 hover:text-background"
-                >
-                  <s.icon className="h-4 w-4" />
-                </a>
-              ))}
+              {socials.map((s) => {
+                const Icon = iconMap[s.platform] || Facebook;
+                return (
+                  <a
+                    key={s.platform}
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.platform}
+                    className="grid h-9 w-9 place-items-center rounded-lg border border-background/10 bg-background/5 text-background/70 transition-colors hover:border-background/20 hover:bg-background/10 hover:text-background"
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                );
+              })}
             </div>
           </div>
 
@@ -100,16 +124,18 @@ export function SiteFooter() {
               Nos agences
             </h4>
             <ul className="mt-5 space-y-3">
-              {AGENCIES.map((a) => (
-                <li key={a.city}>
-                  <Link
-                    to="/agences"
-                    className="group flex items-center justify-between gap-2 text-sm text-background/70 transition-colors hover:text-background"
-                  >
-                    <span>{a.city}</span>
-                  </Link>
-                </li>
-              ))}
+              {agences
+                ?.filter((a) => a.is_active)
+                .map((a) => (
+                  <li key={a.id}>
+                    <Link
+                      to="/agences"
+                      className="group flex items-center justify-between gap-2 text-sm text-background/70 transition-colors hover:text-background"
+                    >
+                      <span>{a.name}</span>
+                    </Link>
+                  </li>
+                ))}
               <li className="pt-2">
                 <Link
                   to="/agences"
@@ -131,7 +157,7 @@ export function SiteFooter() {
               {/* Email */}
               <li>
                 <a
-                  href="mailto:info@thekeygroup.com"
+                  href={`mailto:${primaryEmail}`}
                   className="group flex items-start gap-3 text-sm text-background/70 transition-colors hover:text-background"
                 >
                   <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-background/10 bg-background/5 text-background/60 transition-colors group-hover:border-background/20 group-hover:text-background">
@@ -141,7 +167,7 @@ export function SiteFooter() {
                     <span className="block text-[11px] uppercase tracking-wider text-background/40">
                       Email
                     </span>
-                    info@thekeygroup.com
+                    {primaryEmail}
                   </span>
                 </a>
               </li>
@@ -149,7 +175,7 @@ export function SiteFooter() {
               {/* Téléphone / WhatsApp */}
               <li>
                 <a
-                  href="https://wa.me/22997000000"
+                  href={`https://wa.me/${whatsappPhone.replace(/\D/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group flex items-start gap-3 text-sm text-background/70 transition-colors hover:text-background"
@@ -161,10 +187,28 @@ export function SiteFooter() {
                     <span className="block text-[11px] uppercase tracking-wider text-background/40">
                       WhatsApp
                     </span>
-                    +229 97 00 00 00
+                    {whatsappPhone}
                   </span>
                 </a>
               </li>
+
+              {/* Téléphone Standard */}
+              {/* <li>
+                <a
+                  href={`tel:${primaryPhone.replace(/\D/g, "")}`}
+                  className="group flex items-start gap-3 text-sm text-background/70 transition-colors hover:text-background"
+                >
+                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-background/10 bg-background/5 text-background/60 transition-colors group-hover:border-background/20 group-hover:text-background">
+                    <Phone className="h-3.5 w-3.5" />
+                  </span>
+                  <span>
+                    <span className="block text-[11px] uppercase tracking-wider text-background/40">
+                      Téléphone
+                    </span>
+                    {primaryPhone}
+                  </span>
+                </a>
+              </li> */}
 
               {/* Localisation */}
               <li>
@@ -174,9 +218,9 @@ export function SiteFooter() {
                   </span>
                   <span>
                     <span className="block text-[11px] uppercase tracking-wider text-background/40">
-                      Sièges
+                      Siège
                     </span>
-                    Ningbo, Chine · Cotonou, Bénin
+                    {addresses}
                   </span>
                 </div>
               </li>

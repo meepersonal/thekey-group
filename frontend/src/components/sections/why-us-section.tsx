@@ -33,13 +33,10 @@ export function WhyUsSection({ items }: WhyUsSectionProps) {
         {/* ─── Header ─── */}
         <div className="mb-12 sm:mb-16 md:mb-20">
           <span className="block text-xs font-bold uppercase tracking-widest text-primary sm:text-sm">
-            03 — Pourquoi nous
+            04 — Pourquoi nous faire confiance ?
           </span>
           <h2 className="mt-3 font-display text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
-            L&apos;importation,{" "}
-            <span className="bg-gradient-to-r from-white via-white/90 to-primary bg-clip-text text-transparent">
-              en toute sérénité.
-            </span>
+            L&apos;importation en toute sérénité.
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-400 sm:text-lg">
             Un interlocuteur unique, un suivi transparent et un SAV local pour importer votre véhicule en toute sérénité.

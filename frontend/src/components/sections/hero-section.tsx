@@ -10,7 +10,7 @@ export function HeroSection() {
   const chatUrl = whatsappLink(settings?.whatsapp_number);
 
   return (
-    <section className="relative flex min-h-[90vh] w-full flex-col justify-between overflow-hidden bg-black p-6 lg:p-12">
+    <section className="relative flex min-h-[90vh] w-full flex-col items-center justify-center overflow-hidden bg-black p-6 lg:p-12">
       {/* ─── Vidéo de fond en boucle ─── */}
       <video
         autoPlay
@@ -25,15 +25,15 @@ export function HeroSection() {
       {/* Dégradés superposés pour la lisibilité */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/50 to-black/95" />
 
-      {/* ─── Contenu Haut ─── */}
-      <div className="relative z-10 mx-auto w-full max-w-5xl pt-8 text-center lg:pt-16">
-        {/* Badge autorité */}
+      {/* ─── Contenu centré ─── */}
+      <div className="relative z-10 mx-auto w-full max-w-5xl text-center">
+        {/* Badge autorité / slogan */}
         <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur-md">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
           </span>
-          THE KEY-GROUP • Livraison garantie en 30 jours
+          THE KEY GROUP • La clé vers l'excellence automobile chinoise
         </span>
 
         {/* ─── TITRE : douleur → solution ─── */}
@@ -65,10 +65,10 @@ export function HeroSection() {
           <Button
             asChild
             size="lg"
-            className="group h-14 rounded-full bg-white px-9 font-display text-base font-bold text-black shadow-2xl shadow-white/10 transition hover:scale-[1.02] hover:bg-white/90"
+            className="group h-14 rounded-full bg-emerald-600 px-9 font-display text-base font-bold text-white shadow-2xl shadow-emerald-500/20 transition hover:scale-[1.02] hover:bg-emerald-500"
           >
             <Link to="/catalogue" className="inline-flex items-center gap-2">
-              Démarrer mon importation
+              Consulter notre catalogue
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>

@@ -10,7 +10,11 @@ import {
   MessageCircle,
   Phone,
   Send,
-  ShieldCheck, Search, Navigation
+  ShieldCheck, Search, Navigation,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Youtube,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -18,86 +22,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { waLink } from "@/data/tracking";
+import { usePublicAgences, usePublicSettings } from "@/data/public-store";
+import { api } from "@/lib/api";
+import { AgenciesSection } from "@/components/sections/agencies-section";
 
 /* ============================================================
-   DONNÉES
+   DONNÉES STATIQUES (sujets, FAQ, régions)
    ============================================================ */
 const REGIONS = ["Toutes", "Île-de-France", "Sud-Est", "Sud-Ouest", "Nord", "Ouest"];
-
-const AGENCIES = [
-  {
-    id: "paris",
-    city: "Paris",
-    postalCode: "75011",
-    address: "42 rue de la Roquette",
-    phone: "+33 1 23 45 67 89",
-    hours: "Lun–Sam · 9h–19h",
-    region: "Île-de-France",
-    open: true,
-    mapX: 52,
-    mapY: 28,
-  },
-  {
-    id: "lyon",
-    city: "Lyon",
-    postalCode: "69003",
-    address: "18 avenue Jean Jaurès",
-    phone: "+33 4 23 45 67 89",
-    hours: "Lun–Sam · 9h–19h",
-    region: "Sud-Est",
-    open: true,
-    mapX: 60,
-    mapY: 52,
-  },
-  {
-    id: "marseille",
-    city: "Marseille",
-    postalCode: "13006",
-    address: "7 rue Paradis",
-    phone: "+33 4 91 23 45 67",
-    hours: "Lun–Sam · 9h–18h",
-    region: "Sud-Est",
-    open: true,
-    mapX: 62,
-    mapY: 72,
-  },
-  {
-    id: "bordeaux",
-    city: "Bordeaux",
-    postalCode: "33000",
-    address: "25 cours de l'Intendance",
-    phone: "+33 5 56 23 45 67",
-    hours: "Lun–Sam · 9h–19h",
-    region: "Sud-Ouest",
-    open: false,
-    mapX: 32,
-    mapY: 60,
-  },
-  {
-    id: "lille",
-    city: "Lille",
-    postalCode: "59000",
-    address: "12 rue Faidherbe",
-    phone: "+33 3 20 23 45 67",
-    hours: "Lun–Sam · 9h–19h",
-    region: "Nord",
-    open: true,
-    mapX: 55,
-    mapY: 8,
-  },
-  {
-    id: "nantes",
-    city: "Nantes",
-    postalCode: "44000",
-    address: "9 rue Crébillon",
-    phone: "+33 2 40 23 45 67",
-    hours: "Lun–Sam · 9h–18h",
-    region: "Ouest",
-    open: true,
-    mapX: 22,
-    mapY: 38,
-  },
-];
 
 const SUBJECTS = [
   "Devis véhicule",
@@ -105,44 +37,6 @@ const SUBJECTS = [
   "Dédouanement",
   "Devenir partenaire",
   "Autre",
-];
-
-const CONTACT_INFO = [
-  {
-    icon: Phone,
-    label: "Téléphone",
-    value: "+229 97 00 00 00",
-    href: "tel:+22997000000",
-    hint: "Lun–Sam · 8h–19h",
-  },
-  {
-    icon: MessageCircle,
-    label: "WhatsApp",
-    value: "+229 97 00 00 00",
-    href: waLink("Bonjour The Key Group, j'aimerais des informations."),
-    hint: "Réponse en moins d'1h",
-  },
-  {
-    icon: Mail,
-    label: "Email",
-    value: "info@thekeygroup.com",
-    href: "mailto:info@thekeygroup.com",
-    hint: "Réponse sous 24h",
-  },
-  {
-    icon: MapPin,
-    label: "Sièges",
-    value: "Ningbo, Chine · Cotonou, Bénin",
-    href: "/agences",
-    hint: "Voir toutes les agences",
-  },
-];
-
-const AGENCIES_QUICK = [
-  { city: "Paris", country: "France", phone: "+33 1 23 45 67 89" },
-  { city: "Lyon", country: "France", phone: "+33 4 23 45 67 89" },
-  { city: "Cotonou", country: "Bénin", phone: "+229 97 00 00 00" },
-  { city: "Ningbo", country: "Chine", phone: "+86 20 1234 5678" },
 ];
 
 const FAQ_EXPRESS = [
@@ -172,6 +66,11 @@ const LABEL_CLASS =
    ============================================================ */
 
 export function ContactPage() {
+  const { data: agenciesData } = usePublicAgences();
+  const { data: settings } = usePublicSettings();
+
+  const agencies = agenciesData ?? [];
+
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -180,35 +79,103 @@ export function ContactPage() {
     message: "",
   });
   const [sent, setSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [region, setRegion] = useState("Toutes");
   const [search, setSearch] = useState("");
 
-  const filteredAgencies = AGENCIES.filter((a) => {
-    const matchRegion = region === "Toutes" || a.region === region;
+  // Build contact info from settings with fallbacks
+  const primaryPhone = settings?.phones?.find((p) => p.label === "Standard")?.value
+    || settings?.phones?.[0]?.value
+    || settings?.support_phone
+    || "+229 97 00 00 00";
+
+  const whatsappPhone = settings?.phones?.find((p) => p.label === "WhatsApp")?.value
+    || settings?.whatsapp_number
+    || "+229 97 00 00 00";
+
+  const primaryEmail = settings?.email_contact || "info@thekeygroup.com";
+
+  const addresses = settings?.addresses?.length
+    ? settings.addresses.map((a) => a.value).join(" · ")
+    : "Ningbo, Chine · Cotonou, Bénin";
+
+  const contactInfo = [
+    {
+      icon: Phone,
+      label: "Téléphone",
+      value: primaryPhone,
+      href: `tel:${primaryPhone.replace(/\D/g, "")}`,
+      hint: "Lun–Sam · 8h–19h",
+    },
+    {
+      icon: MessageCircle,
+      label: "WhatsApp",
+      value: whatsappPhone,
+      href: waLink("Bonjour The Key Group, j'aimerais des informations."),
+      hint: "Réponse en moins d'1h",
+    },
+    {
+      icon: Mail,
+      label: "Email",
+      value: primaryEmail,
+      href: `mailto:${primaryEmail}`,
+      hint: "Réponse sous 24h",
+    },
+    {
+      icon: MapPin,
+      label: "Sièges",
+      value: addresses,
+      href: "/agences",
+      hint: "Voir toutes les agences",
+    },
+  ];
+
+  const filteredAgencies = agencies.filter((a) => {
+    const matchRegion = region === "Toutes" || a.location === region;
     const q = search.trim().toLowerCase();
     const matchSearch =
       q === "" ||
-      a.city.toLowerCase().includes(q) ||
-      a.country.toLowerCase().includes(q) ||
-      a.address.toLowerCase().includes(q);
+      a.name?.toLowerCase().includes(q) ||
+      a.location?.toLowerCase().includes(q);
     return matchRegion && matchSearch;
   });
 
   const set = (k: keyof typeof form) => (v: string) =>
     setForm((f) => ({ ...f, [k]: v }));
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.phone || !form.message) {
       toast.error("Merci de remplir votre nom, téléphone et message.");
       return;
     }
-    setSent(true);
-    toast.success("Message envoyé !", {
-      description: "Notre équipe vous répond sous 24 h ouvrées.",
-    });
-    setForm({ name: "", phone: "", email: "", subject: SUBJECTS[0], message: "" });
+    setIsSubmitting(true);
+    try {
+      // Use createPreorder for vehicle quote requests, or a generic contact endpoint if available
+      // For now, we'll use the preorder endpoint for "Devis véhicule" subject
+      if (form.subject === "Devis véhicule") {
+        const payload: Parameters<typeof api.createPreorder>[0] = {
+          vehicle_id: 0,
+          name: form.name,
+          phone: form.phone,
+          notes: form.message,
+        };
+        if (form.email) payload.email = form.email;
+        await api.createPreorder(payload);
+      }
+      // For other subjects, we just show success (could add a generic contact endpoint later)
+      setSent(true);
+      toast.success("Message envoyé !", {
+        description: "Notre équipe vous répond sous 24 h ouvrées.",
+      });
+      setForm({ name: "", phone: "", email: "", subject: SUBJECTS[0], message: "" });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erreur lors de l'envoi.";
+      toast.error(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -354,10 +321,11 @@ export function ContactPage() {
                         type="submit"
                         variant="default"
                         size="lg"
+                        disabled={isSubmitting}
                         className="h-12 gap-2 rounded-full bg-foreground px-6 text-base font-semibold text-background hover:bg-foreground/90"
                       >
                         <Send className="h-4 w-4" />
-                        Envoyer
+                        {isSubmitting ? "Envoi..." : "Envoyer"}
                       </Button>
                       <Button
                         asChild
@@ -401,7 +369,7 @@ export function ContactPage() {
 
                 {/* Liste des contacts */}
                 <ul className="space-y-3">
-                  {CONTACT_INFO.map((c) => (
+                  {contactInfo.map((c) => (
                     <li key={c.label}>
                       <a
                         href={c.href}
@@ -451,6 +419,58 @@ export function ContactPage() {
                     </p>
                   </div>
                 </div>
+
+                {/* Réseaux sociaux depuis settings */}
+                {(() => {
+                  const socialsMap = new Map<string, string>();
+                  // From socials array
+                  settings?.socials?.forEach((s) => {
+                    if (s.url) socialsMap.set(s.platform.toLowerCase(), s.url);
+                  });
+                  // From individual fields (override)
+                  if (settings?.facebook_url) socialsMap.set("facebook", settings.facebook_url);
+                  if (settings?.instagram_url) socialsMap.set("instagram", settings.instagram_url);
+                  if (settings?.linkedin_url) socialsMap.set("linkedin", settings.linkedin_url);
+                  if (settings?.youtube_url) socialsMap.set("youtube", settings.youtube_url);
+                  if (settings?.tiktok_url) socialsMap.set("tiktok", settings.tiktok_url);
+
+                  const socials = Array.from(socialsMap.entries()).map(([platform, url]) => ({ platform, url }));
+
+                  if (socials.length === 0) return null;
+
+                  const iconMap: Record<string, typeof Facebook> = {
+                    facebook: Facebook,
+                    instagram: Instagram,
+                    linkedin: Linkedin,
+                    youtube: Youtube,
+                    tiktok: Youtube, // fallback
+                  };
+
+                  return (
+                    <div className="space-y-3">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Suivez-nous
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {socials.map((s) => {
+                          const Icon = iconMap[s.platform] || Facebook;
+                          return (
+                            <a
+                              key={s.platform}
+                              href={s.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={s.platform}
+                              className="grid h-10 w-10 place-items-center rounded-xl border border-border bg-background transition-colors hover:border-foreground/20 hover:bg-foreground hover:text-background"
+                            >
+                              <Icon className="h-5 w-5" />
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>
@@ -460,154 +480,7 @@ export function ContactPage() {
       {/* ──────────────────────────────────────────────
           SECTION 3 — AGENCES RAPIDES
           ────────────────────────────────────────────── */}
-      <section className="border-t border-border/60 bg-background" id="agences">
-        <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-20">
-
-          {/* Header + Recherche */}
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-            {/* Titre + description */}
-            <div className="max-w-2xl">
-              <span className="inline-flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.25em] text-primary">
-                <span className="h-px w-6 bg-primary/40" />
-                Nos agences
-              </span>
-
-              <h2 className="mt-4 font-display text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl">
-                Retrouvez-nous{" "}
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  près de chez vous
-                </span>
-              </h2>
-
-              <p className="mt-4 text-base text-muted-foreground">
-                {AGENCIES.length} agences en France, en Afrique et en Asie —
-                avec des journées d'essai organisées chaque mois.
-              </p>
-            </div>
-
-            {/* Champ de recherche */}
-            <div className="relative w-full lg:w-80">
-              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Rechercher une ville, un pays..."
-                aria-label="Rechercher une agence"
-                className="h-11 w-full rounded-full border-border bg-background pl-10 pr-4 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-1px_0_rgba(0,0,0,0.06)] transition-colors focus-visible:border-primary focus-visible:ring-0"
-              />
-            </div>
-          </div>
-
-          {/* Filtre par région */}
-          <div className="mt-10 flex flex-wrap justify-center gap-2 lg:justify-start">
-            {REGIONS.map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setRegion(r)}
-                className={`rounded-full border px-4 py-2 text-xs font-semibold transition-colors ${region === r
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-background text-muted-foreground hover:border-foreground/20 hover:text-foreground"
-                  }`}
-              >
-                {r}
-              </button>
-            ))}
-          </div>
-
-          {/* Grille des agences */}
-          {filteredAgencies.length > 0 ? (
-            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredAgencies.map((a) => (
-                <article
-                  key={a.id}
-                  className="group flex flex-col rounded-2xl border border-border bg-background p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-1px_0_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.03)] transition-all duration-300 hover:-translate-y-1 hover:border-foreground/20 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-1px_0_rgba(0,0,0,0.08),0_12px_32px_rgba(0,0,0,0.08)]"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-display text-lg font-bold leading-tight text-foreground">
-                        {a.city}
-                      </h3>
-                    </div>
-
-                    <span
-                      className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${a.open
-                        ? "bg-emerald-500/10 text-emerald-600"
-                        : "bg-secondary text-muted-foreground"
-                        }`}
-                    >
-                      {a.open ? "Ouvert" : "Fermé"}
-                    </span>
-                  </div>
-
-                  <div className="my-4 h-px bg-border/60" />
-
-                  <div className="flex-1 space-y-3">
-                    <p className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-foreground/60" />
-                      {a.address}
-                    </p>
-                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Phone className="h-4 w-4 shrink-0 text-foreground/60" />
-                      {a.phone}
-                    </p>
-                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Clock className="h-4 w-4 shrink-0 text-foreground/60" />
-                      {a.hours}
-                    </p>
-                  </div>
-
-                  <div className="mt-5 flex gap-2">
-                    <Button asChild variant="accent" size="sm" className="flex-1">
-                      <Link to="/contact">
-                        Prendre RDV
-                        <ArrowRight className="h-3.5 w-3.5" />
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline" size="sm">
-                      <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                          `${a.address}, ${a.city}`
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Navigation className="h-3.5 w-3.5" />
-                        Itinéraire
-                      </a>
-                    </Button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            /* État vide */
-            <div className="mt-12 flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/60 bg-secondary/20 px-6 py-16 text-center">
-              <span className="grid h-12 w-12 place-items-center rounded-full bg-secondary text-muted-foreground">
-                <Search className="h-5 w-5" />
-              </span>
-              <p className="mt-4 font-display text-base font-bold text-foreground">
-                Aucune agence trouvée
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Essayez un autre mot-clé ou changez de région.
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-5"
-                onClick={() => {
-                  setSearch("");
-                  setRegion("Toutes");
-                }}
-              >
-                Réinitialiser la recherche
-              </Button>
-            </div>
-          )}
-        </div>
-      </section>
+      <AgenciesSection />
 
     </div>
   );

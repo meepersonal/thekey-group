@@ -7,7 +7,7 @@ import { usePublicSettings } from "@/data/public-store";
 import { ImageWithFallback } from "@/components/image-with-fallback";
 
 // ─────────────────────────────────────────────
-// HeaderLink: handles anchors on home page + normal navigation
+// HeaderLink
 // ─────────────────────────────────────────────
 interface HeaderLinkProps {
   to: string;
@@ -79,7 +79,7 @@ function HeaderLink({
 }
 
 // ─────────────────────────────────────────────
-// Button (Shadcn-like)
+// Button
 // ─────────────────────────────────────────────
 const Button = ({
   children,
@@ -154,7 +154,7 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { data: siteSettings } = usePublicSettings();
-  const logo = siteSettings?.site_logo ?? null;
+  const logo = "https://key-group.geant.app/logo.png";
   const siteName = siteSettings?.site_name ?? null;
 
   const pathname = useRouterState((s) => s.pathname);
@@ -206,12 +206,11 @@ export function SiteHeader() {
 
   const closeMenu = useCallback(() => setOpen(false), []);
 
-  // ─── Styles conditionnels ───
+  // ─── Styles conditionnels (hauteurs réduites) ───
   const headerInnerClass = [
-    // Rayon généreux + flottant
-    "mx-auto mt-3 max-w-7xl",
-    "rounded-[1.75rem] border transition-all duration-500 ease-out",
-    // Padding interne plus généreux
+    // Marges haut/bas réduites
+    "mx-auto mt-3 mb-2 max-w-7xl sm:mt-3.5 sm:mb-2.5",
+    "rounded-[1.5rem] border transition-all duration-500 ease-out",
     isHome
       ? scrolled
         ? "border-border/60 bg-background/85 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.15)] backdrop-blur-xl"
@@ -221,9 +220,10 @@ export function SiteHeader() {
         : "border-transparent bg-background/70 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.06)] backdrop-blur-md",
   ].join(" ");
 
+  // ⬇️ HAUTEUR RÉDUITE ICI
   const headerContainerClass = [
-    "mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 transition-all duration-300 ease-out sm:gap-4 sm:px-6 lg:px-8",
-    scrolled ? "h-14 sm:h-16" : "h-16 sm:h-[76px]",
+    "mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 transition-all duration-300 ease-out sm:gap-4 sm:px-5 lg:px-6",
+    scrolled ? "h-12 sm:h-13" : "h-14 sm:h-15",
   ].join(" ");
 
   return (
@@ -239,13 +239,13 @@ export function SiteHeader() {
               className="group relative flex shrink-0 items-center rounded-full outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <ImageWithFallback
-                src={logo || "/logo.png"}
+                src={logo || "/public/logo.png"}
                 alt={siteName || "THE KEY-GROUP"}
                 width={150}
                 height={40}
                 loading="eager"
-                wrapperClassName="h-7 w-auto sm:h-8 md:h-9 lg:h-10"
-                className="h-7 w-auto select-none object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03] sm:h-8 md:h-9 lg:h-10"
+                wrapperClassName="h-6 w-auto sm:h-7 md:h-8 lg:h-9"
+                className="h-6 w-auto select-none object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03] sm:h-7 md:h-8 lg:h-9"
               />
             </HeaderLink>
 
@@ -259,9 +259,10 @@ export function SiteHeader() {
                       activeOptions={{ exact: l.to === "/" }}
                       activeProps={{ className: "text-primary bg-primary/8 font-bold" }}
                       inactiveProps={{
-                        className: "text-foreground/75 hover:text-foreground hover:bg-secondary/70",
+                        className:
+                          "text-foreground/75 hover:text-foreground hover:bg-secondary/70",
                       }}
-                      className="group relative inline-flex items-center whitespace-nowrap rounded-full px-4 py-2.5 text-[14px] font-semibold leading-none tracking-[-0.01em] transition-all duration-200"
+                      className="group relative inline-flex items-center whitespace-nowrap rounded-full px-3.5 py-2 text-[13.5px] font-semibold leading-none tracking-[-0.01em] transition-all duration-200"
                     >
                       {l.label}
                     </HeaderLink>
@@ -277,12 +278,12 @@ export function SiteHeader() {
                   asChild
                   variant="emerald"
                   size="sm"
-                  className="group h-10 gap-2 rounded-full px-5 text-xs font-bold uppercase tracking-wider"
+                  className="group h-9 gap-1.5 rounded-full px-4 text-[11px] font-bold tracking-wider"
                 >
                   <Link to="/tracking" search={{ code: "" }}>
-                    <ShieldCheck className="h-4 w-4 shrink-0" />
+                    <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
                     <span>Suivre mon véhicule</span>
-                    <ArrowUpRight className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    <ArrowUpRight className="h-3 w-3 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </Link>
                 </Button>
               </div>
@@ -293,16 +294,16 @@ export function SiteHeader() {
                 aria-expanded={open}
                 aria-controls="mobile-menu"
                 onClick={() => setOpen((v) => !v)}
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border/60 bg-background/50 text-foreground transition-all duration-200 hover:bg-secondary active:scale-95 lg:hidden"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border/60 bg-background/50 text-foreground transition-all duration-200 hover:bg-secondary active:scale-95 lg:hidden"
               >
-                <span className="relative block h-5 w-5">
+                <span className="relative block h-4 w-4">
                   <Menu
-                    className={`absolute inset-0 h-5 w-5 transition-all duration-300 ${open ? "rotate-90 opacity-0" : "rotate-0 opacity-100"
+                    className={`absolute inset-0 h-4 w-4 transition-all duration-300 ${open ? "rotate-90 opacity-0" : "rotate-0 opacity-100"
                       }`}
                     strokeWidth={2.2}
                   />
                   <X
-                    className={`absolute inset-0 h-5 w-5 transition-all duration-300 ${open ? "rotate-0 opacity-100" : "-rotate-90 opacity-0"
+                    className={`absolute inset-0 h-4 w-4 transition-all duration-300 ${open ? "rotate-0 opacity-100" : "-rotate-90 opacity-0"
                       }`}
                     strokeWidth={2.2}
                   />
@@ -325,7 +326,7 @@ export function SiteHeader() {
         <div
           className={`absolute inset-x-0 top-0 h-[85vh] max-h-[85vh] w-full overflow-y-auto rounded-b-[2rem] border-b border-border/40 bg-background shadow-2xl transition-transform duration-300 ease-in-out ${open ? "translate-y-0" : "-translate-y-full"
             }`}
-          style={{ paddingTop: scrolled ? "64px" : "76px" }}
+          style={{ paddingTop: scrolled ? "56px" : "64px" }}
         >
           <div className="flex flex-col px-5 pb-8 pt-6 sm:px-6 sm:pb-10 sm:pt-8">
             <nav className="flex flex-col gap-1">

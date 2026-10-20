@@ -1,18 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
 import {
   Search,
-  SlidersHorizontal,
-  ChevronLeft,
-  ChevronRight,
   Car,
-  ArrowRight,
   AlertTriangle,
-  Calendar,
-  Fuel,
-  Settings2,
-  Gauge,
-  CheckCircle2,
   X,
+  ArrowRight,
 } from "lucide-react";
 import { Link } from "@/lib/router";
 import { Input } from "@/components/ui/input";
@@ -21,11 +15,10 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { usePublicBrands, usePublicCategories, usePublicVehiclesPage } from "@/data/public-store";
 import { formatFcfa } from "@/data/vehicles";
-import { ImageWithFallback } from "@/components/image-with-fallback";
 import { vehicleImageUrl } from "@/lib/image";
 
 const MAX_PRICE = 30000000;
-const ITEMS_PER_PAGE = 9;
+const ITEMS_PER_PAGE = 12;
 
 type CatalogueVehicle = {
   id: number | string;
@@ -45,9 +38,6 @@ type CatalogueVehicle = {
   nombre_places?: number | null;
 };
 
-const FIELD_CLASS =
-  "h-11 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-accent/50";
-
 export function CataloguePage() {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -65,7 +55,10 @@ export function CataloguePage() {
   }, [searchInput]);
 
   const params = useMemo(() => {
-    const query: Record<string, string> = { per_page: String(ITEMS_PER_PAGE), page: String(page) };
+    const query: Record<string, string> = {
+      per_page: String(ITEMS_PER_PAGE),
+      page: String(page),
+    };
     if (search) query["search"] = search;
     if (brand) query["brand"] = brand;
     if (category) query["category"] = category;
@@ -83,12 +76,10 @@ export function CataloguePage() {
   const totalPages = meta?.last_page ?? 1;
   const currentPage = meta?.current_page ?? page;
 
-  const updateFilter =
-    <T,>(setter: (v: T) => void) =>
-    (value: T) => {
-      setter(value);
-      setPage(1);
-    };
+  const updateFilter = (setter: (v: string) => void) => (value: string) => {
+    setter(value);
+    setPage(1);
+  };
 
   const resetFilters = () => {
     setSearchInput("");
@@ -103,53 +94,54 @@ export function CataloguePage() {
     Boolean(search) || Boolean(brand) || Boolean(category) || maxPrice < MAX_PRICE;
 
   return (
-    <div>
-      {/* ═══════════════════════════════════════════════════════
-          HERO — aligné sur le style FeaturedVehiclesSection
-      ═══════════════════════════════════════════════════════ */}
-      <section className="bg-gradient-navy py-14 text-navy-foreground lg:py-20">
-        <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <span className="mb-4 block text-sm font-medium uppercase tracking-wider text-navy-foreground/60">
-            01 — Catalogue
-          </span>
-          <h1 className="font-display text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-7xl">
-            Catalogue de véhicules.
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-navy-foreground/75 sm:text-lg">
-            Des modèles chinois neufs et d'occasion certifiée, livrés au Port de Cotonou.
-          </p>
-        </div>
-      </section>
+    <div className="bg-white min-h-screen font-sans text-gray-900">
 
-      <section className="mx-auto max-w-7xl px-4 py-12 lg:px-8 lg:py-16">
-        {/* ═══════════════════════════════════════════════════════
-            FILTRES
-        ═══════════════════════════════════════════════════════ */}
-        <div className="surface-card rounded-2xl border border-border p-5 sm:p-6">
-          {/* Ligne 1 : Recherche + Marque + Catégorie */}
-          <div className="grid items-end gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div className="lg:col-span-2">
-              <Label
-                htmlFor="q"
-                className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground"
-              >
-                <SlidersHorizontal className="h-3.5 w-3.5" /> Recherche
+      {/* ANIMATIONS CSS */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animated-card {
+          opacity: 0;
+          animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}} />
+
+      {/* TITRE DE LA PAGE */}
+      <div className="mx-auto max-w-[1400px] px-4 pt-10 pb-6 lg:px-8">
+        <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-black">
+          Catalogue <span className="text-emerald-600">Équipements</span>
+        </h1>
+        <p className="mt-3 text-gray-500 max-w-2xl text-sm leading-relaxed">
+          Découvrez notre gamme complète de véhicules et engins, conçus pour les nouvelles énergies et les chantiers exigeants.
+        </p>
+      </div>
+
+      {/* BARRE DE FILTRES */}
+      <div className="border-y border-gray-200 bg-gray-50 sticky top-0 z-20">
+        <div className="mx-auto max-w-[1400px] px-4 py-4 lg:px-8">
+          <div className="flex flex-col lg:flex-row lg:items-end gap-4">
+
+            {/* Recherche */}
+            <div className="flex-1 min-w-[200px]">
+              <Label htmlFor="q" className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+                <Search className="h-3 w-3" /> Recherche
               </Label>
-              <div className="relative mt-2">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <div className="relative group">
                 <Input
                   id="q"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder="Marque ou modèle (BYD, Jetour…)"
-                  className={"pl-9 " + FIELD_CLASS}
+                  placeholder="Modèle, référence..."
+                  className="h-10 pl-3 pr-8 border border-gray-300 rounded-none bg-white focus-visible:ring-0 focus-visible:border-emerald-600 transition-colors text-sm"
                 />
                 {searchInput && (
                   <button
                     type="button"
                     onClick={() => setSearchInput("")}
-                    aria-label="Effacer la recherche"
-                    className="absolute right-2.5 top-1/2 grid h-6 w-6 -translate-y-1/2 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    className="absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 place-items-center text-gray-400 hover:text-emerald-600 transition-colors"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -157,171 +149,130 @@ export function CataloguePage() {
               </div>
             </div>
 
-            <div>
-              <Label
-                htmlFor="brand"
-                className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground"
-              >
+            {/* Marque */}
+            <div className="w-full lg:w-44">
+              <Label htmlFor="brand" className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
                 Marque
               </Label>
               <select
                 id="brand"
                 value={brand}
                 onChange={(e) => updateFilter(setBrand)(e.target.value)}
-                className={"mt-2 " + FIELD_CLASS}
+                className="h-10 w-full border border-gray-300 bg-white px-2.5 text-sm rounded-none focus:outline-none focus:border-emerald-600 transition-colors appearance-none cursor-pointer hover:border-gray-400"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
               >
                 <option value="">Toutes les marques</option>
                 {brands?.map((b) => (
-                  <option key={b.id} value={b.name}>
-                    {b.name}
-                  </option>
+                  <option key={b.id} value={b.name}>{b.name}</option>
                 ))}
               </select>
             </div>
 
-            <div>
-              <Label
-                htmlFor="cat"
-                className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground"
-              >
+            {/* Catégorie */}
+            <div className="w-full lg:w-44">
+              <Label htmlFor="cat" className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
                 Catégorie
               </Label>
               <select
                 id="cat"
                 value={category}
                 onChange={(e) => updateFilter(setCategory)(e.target.value)}
-                className={"mt-2 " + FIELD_CLASS}
+                className="h-10 w-full border border-gray-300 bg-white px-2.5 text-sm rounded-none focus:outline-none focus:border-emerald-600 transition-colors appearance-none cursor-pointer hover:border-gray-400"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
               >
                 <option value="">Toutes les catégories</option>
                 {categories?.map((c) => (
-                  <option key={c.id} value={c.name}>
-                    {c.name}
-                  </option>
+                  <option key={c.id} value={c.name}>{c.name}</option>
                 ))}
               </select>
             </div>
-          </div>
 
-          {/* Ligne 2 : Budget */}
-          <div className="mt-5 border-t border-border/60 pt-5">
-            <div className="flex items-center justify-between">
-              <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Budget maximum
-              </Label>
-              <span className="font-display text-base font-extrabold text-slate-900">
-                {formatFcfa(maxPrice)}
-              </span>
+            {/* Budget */}
+            <div className="w-full lg:w-56">
+              <div className="flex items-center justify-between mb-1.5">
+                <Label className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                  Budget max
+                </Label>
+                <span className="text-xs font-bold text-emerald-600">
+                  {formatFcfa(maxPrice)}
+                </span>
+              </div>
+              <div className="h-10 flex items-center px-1">
+                <Slider
+                  value={[maxPrice]}
+                  onValueChange={(v) => { setMaxPrice(v[0] ?? MAX_PRICE); setPage(1); }}
+                  min={0}
+                  max={MAX_PRICE}
+                  step={500000}
+                  className="[&_[role=slider]]:rounded-none [&_[role=slider]]:border-emerald-600 [&_[role=slider]]:bg-white [&_[role=slider]]:h-4 [&_[role=slider]]:w-4 [&_[role=slider]]:transition-transform [&_[role=slider]]:hover:scale-125 [&_.bg-primary]:bg-emerald-600 [&_.bg-secondary]:bg-gray-200"
+                />
+              </div>
             </div>
-            <Slider
-              value={[maxPrice]}
-              onValueChange={(v) => {
-                setMaxPrice(v[0] ?? MAX_PRICE);
-                setPage(1);
-              }}
-              min={0}
-              max={MAX_PRICE}
-              step={500000}
-              className="mt-4"
-            />
+
+            {/* Reset Button */}
+            <div className="lg:ml-auto pb-1">
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="inline-flex items-center gap-1.5 h-9 px-3 border border-gray-300 bg-white text-xs font-bold uppercase tracking-wider text-gray-600 hover:border-emerald-600 hover:text-emerald-600 transition-all duration-300"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Effacer
+                </button>
+              )}
+            </div>
+
           </div>
         </div>
+      </div>
 
-        {/* ═══════════════════════════════════════════════════════
-            RÉSULTATS + RÉINITIALISER
-        ═══════════════════════════════════════════════════════ */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-muted-foreground">
-            {isLoading ? (
-              "Chargement des véhicules…"
-            ) : (
-              <>
-                <span className="font-display font-extrabold text-slate-900">{total}</span> véhicule
-                {total > 1 ? "s" : ""} correspondant à votre recherche
-              </>
+      {/* GRILLE PRINCIPALE */}
+      <section className="mx-auto max-w-[1400px] px-4 py-8 lg:px-8">
+
+        <div className="flex items-center justify-between mb-5 pb-3 border-b border-gray-200">
+          <p className="text-sm text-gray-500">
+            {isLoading ? "Chargement..." : (
+              <><span className="font-bold text-black uppercase tracking-tight">{total}</span> résultat{total > 1 ? "s" : ""}</>
             )}
           </p>
-
-          {hasActiveFilters && (
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition-all hover:border-slate-400 hover:bg-slate-50"
-            >
-              <X className="h-3.5 w-3.5" />
-              Réinitialiser les filtres
-            </button>
-          )}
         </div>
 
-        {/* ═══════════════════════════════════════════════════════
-            CONTENU
-        ═══════════════════════════════════════════════════════ */}
         {isError ? (
           <ErrorState />
         ) : isLoading ? (
           <CatalogueSkeleton count={ITEMS_PER_PAGE} />
-        ) : results.length ? (
+        ) : results.length > 0 ? (
           <>
-            <div
-              className={
-                "mt-6 grid gap-6 transition-opacity duration-300 sm:grid-cols-2 lg:grid-cols-3 " +
-                (isFetching ? "opacity-60" : "opacity-100")
-              }
-            >
-              {results.map((v) => (
-                <CatalogueVehicleCard key={v.id} vehicle={v} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-l border-gray-200">
+              {results.map((v: CatalogueVehicle, index: number) => (
+                <CatalogueVehicleCard key={v.id} vehicle={v} index={index} />
               ))}
             </div>
 
-            {/* ═══════════════════════════════════════════════════
-                PAGINATION
-            ═══════════════════════════════════════════════════ */}
             {totalPages > 1 && (
-              <div className="mt-12 flex flex-col items-center justify-between gap-4 sm:flex-row">
-                <p className="text-sm text-muted-foreground">
-                  Page <span className="font-semibold text-slate-900">{currentPage}</span> sur{" "}
-                  <span className="font-semibold text-slate-900">{totalPages}</span>
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t-2 border-black pt-4">
+                <p className="text-sm text-gray-500">
+                  Page <span className="font-bold text-black">{currentPage}</span> sur <span className="font-bold text-black">{totalPages}</span>
                 </p>
-
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={currentPage === 1 || isFetching}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="gap-1.5 rounded-full"
+                    className="rounded-none h-9 px-4 text-xs font-bold uppercase border-gray-300 hover:border-emerald-600 hover:bg-emerald-600 hover:text-white transition-all duration-300"
                   >
-                    <ChevronLeft className="h-4 w-4" />
                     Précédent
                   </Button>
-
-                  <div className="hidden items-center gap-1 sm:flex">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                      <button
-                        key={p}
-                        onClick={() => setPage(p)}
-                        className={
-                          "h-9 w-9 rounded-full text-sm font-semibold transition-all " +
-                          (p === currentPage
-                            ? "bg-slate-900 text-white shadow-md"
-                            : "text-slate-500 hover:bg-slate-100 hover:text-slate-900")
-                        }
-                        aria-current={p === currentPage ? "page" : undefined}
-                      >
-                        {p}
-                      </button>
-                    ))}
-                  </div>
-
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={currentPage === totalPages || isFetching}
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    className="gap-1.5 rounded-full"
+                    className="rounded-none h-9 px-4 text-xs font-bold uppercase border-gray-300 hover:border-emerald-600 hover:bg-emerald-600 hover:text-white transition-all duration-300"
                   >
                     Suivant
-                    <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -336,184 +287,95 @@ export function CataloguePage() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   CARTE VÉHICULE — alignée sur FeaturedVehicleCard
+   CARTE VÉHICULE - Style industriel + Image arrondie
    ═══════════════════════════════════════════════════════════ */
-function CatalogueVehicleCard({ vehicle }: { vehicle: CatalogueVehicle }) {
-  const {
-    id,
-    slug,
-    brand,
-    model,
-    year,
-    energy,
-    transmission,
-    mileage_km,
-    condition,
-    price_fcfa,
-    badge,
-    category,
-    nombre_places,
-  } = vehicle;
+function CatalogueVehicleCard({ vehicle, index }: { vehicle: CatalogueVehicle; index: number }) {
+  const { model, condition, energy, year } = vehicle;
+  const to = `/vehicules/${vehicle.id}`;
 
-  const cover = vehicleImageUrl(vehicle);
-
-  const to = `/vehicules/${id}`;
+  const imageUrl = useMemo(() => vehicleImageUrl(vehicle), [vehicle]);
 
   const specs = [
-    { icon: Calendar, label: "Année", value: year ? String(year) : null },
-    { icon: Fuel, label: "Énergie", value: energy ?? null },
-    { icon: Settings2, label: "Boîte", value: transmission ?? null },
-    {
-      icon: Gauge,
-      label: "Km",
-      value:
-        typeof mileage_km === "number" ? new Intl.NumberFormat("fr-FR").format(mileage_km) : null,
-    },
-  ].filter((s) => s.value);
+    { label: "Paramètre 1 :", value: "Poids utile/charge nominale" },
+    { label: "Paramètre 2 :", value: energy ? `Énergie : ${energy}` : "Capacité du godet" },
+    { label: "Paramètre 3", value: year ? `Année : ${year}` : "Puissance du moteur de traction" },
+  ];
 
   return (
-    <article className="group surface-card relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-      {/* ─── Image ─── */}
-      <Link to={to} className="relative block aspect-[3/2] overflow-hidden bg-secondary">
-        <ImageWithFallback
-          src={cover}
-          alt={`${brand ?? ""} ${model ?? ""}`.trim()}
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+    <article
+      className="animated-card flex flex-col border-r border-b border-gray-200 bg-white group h-full transition-all duration-300 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] hover:-translate-y-1 hover:z-10 relative"
+      style={{ animationDelay: `${index * 80}ms` }}
+    >
+      <Link to={to} className="flex flex-col flex-1 h-full">
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
-
-        <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-          {badge && (
-            <span className="rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-900 shadow-sm backdrop-blur-sm">
-              {badge}
-            </span>
-          )}
-          {category && (
-            <span className="rounded-full bg-slate-900/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm backdrop-blur-sm">
-              {category}
-            </span>
-          )}
-        </div>
-
-        {brand && (
-          <p className="absolute bottom-3 left-3 text-[10px] font-bold uppercase tracking-[0.15em] text-white/90">
-            {brand}
+        {/* 1. EN-TÊTE */}
+        <div className="p-4 pb-0 h-[88px] flex flex-col justify-start">
+          <p className="text-[13px] text-gray-500 mb-0.5 line-clamp-1 h-[18px]">
+            {condition || "chargeur purement électrique"}
           </p>
-        )}
-      </Link>
-
-      {/* ─── Contenu ─── */}
-      <div className="flex flex-1 flex-col p-5">
-        <Link to={to} className="block">
-          <h3 className="font-display text-lg font-extrabold leading-tight tracking-tight text-slate-900 transition-colors group-hover:!text-emerald-600">
-            {model ?? "Véhicule"}
+          <h3 className="text-[22px] font-black text-black uppercase tracking-tight leading-none mt-1 line-clamp-2 transition-colors duration-300 group-hover:text-emerald-600">
+            {model || "LE80-X5"}
           </h3>
-        </Link>
-
-        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-          {condition && (
-            <span className="inline-flex items-center gap-1">
-              <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-              {condition}
-            </span>
-          )}
-          {typeof nombre_places === "number" && (
-            <>
-              {condition && <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />}
-              <span>{nombre_places} places</span>
-            </>
-          )}
         </div>
 
-        {/* ═══════ CARACTÉRISTIQUES ═══════ */}
-        {specs.length > 0 && (
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            {specs.map((s, i) => {
-              const Icon = s.icon;
-              return (
-                <div
-                  key={i}
-                  className="flex items-center gap-2 rounded-lg border border-border/60 bg-slate-50/60 px-2.5 py-2"
-                >
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-white text-slate-700 shadow-sm ring-1 ring-inset ring-slate-200">
-                    <Icon className="h-3.5 w-3.5" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">
-                      {s.label}
-                    </p>
-                    <p className="truncate text-xs font-semibold text-slate-900">{s.value}</p>
-                  </div>
-                </div>
-              );
-            })}
+        {/* 2. IMAGE AVEC COINS ARRONDIS */}
+        <div className="px-4 mt-2">
+          <div className="relative aspect-[4/3] w-full rounded-xl overflow-hidden bg-gray-50 flex items-center justify-center p-2">
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                alt={model ?? "Véhicule"}
+                className="max-h-full max-w-full object-contain mix-blend-multiply transition-transform duration-500 ease-out group-hover:scale-110"
+                loading="lazy"
+              />
+            ) : (
+              <Car className="h-16 w-16 text-gray-300" />
+            )}
           </div>
-        )}
+        </div>
 
-        {/* ─── Prix + CTA ─── */}
-        <div className="mt-5 border-t border-border/60 pt-4">
-          <div className="flex items-end justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                Prix
-              </p>
-              <p className="mt-0.5 font-display text-lg font-extrabold tracking-tight text-slate-900">
-                {typeof price_fcfa === "number"
-                  ? new Intl.NumberFormat("fr-FR", {
-                      style: "currency",
-                      currency: "XOF",
-                      maximumFractionDigits: 0,
-                    }).format(price_fcfa)
-                  : "Sur demande"}
-              </p>
+        {/* 3. SPÉCIFICATIONS */}
+        <div className="p-4 pt-3 mt-auto space-y-3 border-t border-gray-100 flex-1">
+          {specs.map((spec, i) => (
+            <div key={i} className="text-[13px] leading-tight">
+              <p className="text-gray-500 mb-0.5 line-clamp-1">{spec.label}</p>
+              <p className="font-bold text-black line-clamp-2 min-h-[2.5em]">{spec.value}</p>
             </div>
-          </div>
-
-          <Link
-            to={to}
-            className="group/cta mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white shadow-md shadow-emerald-600/20 transition-all hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-600/30"
-          >
-            Passer à votre commande
-            <ArrowRight className="h-4 w-4 transition-transform group-hover/cta:translate-x-1" />
-          </Link>
+          ))}
         </div>
-      </div>
+
+        {/* 4. BOUTON D'ACTION */}
+        <div className="p-4 pt-0 mt-auto">
+          <div className="w-full flex items-center justify-between bg-gray-50 text-black border border-gray-200 rounded-lg px-4 py-3 text-[13px] font-bold uppercase tracking-wider transition-all duration-300 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 group-hover:shadow-lg group-hover:shadow-emerald-600/20">
+            <span>Voir le véhicule</span>
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </div>
+        </div>
+      </Link>
     </article>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════
-   ÉTATS
+   ÉTATS & SKELETON
    ═══════════════════════════════════════════════════════════ */
-
 function ErrorState() {
   return (
-    <div className="mt-8 flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60 bg-secondary/20 px-6 py-16 text-center">
-      <span className="grid h-12 w-12 place-items-center rounded-full bg-destructive/10 text-destructive">
-        <AlertTriangle className="h-5 w-5" />
-      </span>
-      <p className="font-display text-base font-bold text-foreground">Chargement impossible</p>
-      <p className="max-w-sm text-sm text-muted-foreground">
-        Le catalogue n'a pas pu être contacté. Réessayez dans un instant.
-      </p>
+    <div className="flex flex-col items-center justify-center gap-3 border border-gray-300 px-6 py-16 text-center">
+      <AlertTriangle className="h-8 w-8 text-red-500" />
+      <p className="font-bold text-black uppercase">Chargement impossible</p>
+      <p className="max-w-sm text-sm text-gray-500">Le catalogue n'a pas pu être contacté.</p>
     </div>
   );
 }
 
 function EmptyState({ onReset }: { onReset: () => void }) {
   return (
-    <div className="mt-8 flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60 bg-secondary/20 px-6 py-16 text-center">
-      <span className="grid h-12 w-12 place-items-center rounded-full bg-secondary text-muted-foreground">
-        <Car className="h-5 w-5" />
-      </span>
-      <p className="font-display text-base font-bold text-foreground">
-        Aucun véhicule ne correspond
-      </p>
-      <p className="max-w-sm text-sm text-muted-foreground">
-        Essayez d'élargir votre budget ou de changer de catégorie.
-      </p>
-      <Button variant="outline" size="sm" className="mt-2 rounded-full" onClick={onReset}>
+    <div className="flex flex-col items-center justify-center gap-3 border border-gray-300 px-6 py-16 text-center">
+      <Car className="h-8 w-8 text-gray-400" />
+      <p className="font-bold text-black uppercase">Aucun équipement trouvé</p>
+      <p className="max-w-sm text-sm text-gray-500">Essayez de modifier vos critères de recherche.</p>
+      <Button variant="outline" size="sm" className="mt-2 rounded-none border-black text-black hover:bg-emerald-600 hover:border-emerald-600 hover:text-white uppercase text-xs font-bold transition-all duration-300" onClick={onReset}>
         Réinitialiser les filtres
       </Button>
     </div>
@@ -522,31 +384,26 @@ function EmptyState({ onReset }: { onReset: () => void }) {
 
 function CatalogueSkeleton({ count }: { count: number }) {
   return (
-    <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-l border-gray-200">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="surface-card overflow-hidden rounded-2xl" aria-hidden="true">
-          <div className="aspect-[3/2] animate-pulse bg-secondary" />
-          <div className="space-y-3 p-5">
-            <div className="h-5 w-32 animate-pulse rounded bg-secondary" />
-            <div className="h-3 w-24 animate-pulse rounded bg-secondary" />
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              {Array.from({ length: 4 }).map((__, j) => (
-                <div
-                  key={j}
-                  className="flex items-center gap-2 rounded-lg border border-border/60 bg-slate-50/60 px-2.5 py-2"
-                >
-                  <div className="h-7 w-7 shrink-0 animate-pulse rounded-md bg-secondary" />
-                  <div className="min-w-0 flex-1 space-y-1">
-                    <div className="h-2 w-10 animate-pulse rounded bg-secondary" />
-                    <div className="h-2.5 w-14 animate-pulse rounded bg-secondary" />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="pt-4">
-              <div className="h-7 w-24 animate-pulse rounded bg-secondary" />
-              <div className="mt-4 h-11 w-full animate-pulse rounded-xl bg-secondary" />
-            </div>
+        <div key={i} className="border-r border-b border-gray-200 bg-white h-full flex flex-col">
+          <div className="p-4 pb-0 h-[88px] flex flex-col justify-start space-y-2">
+            <div className="h-3 w-3/4 bg-gray-100 rounded-sm animate-pulse" />
+            <div className="h-6 w-1/2 bg-gray-100 rounded-sm animate-pulse" />
+          </div>
+          <div className="px-4 mt-2">
+            <div className="aspect-[4/3] w-full bg-gray-50 rounded-xl animate-pulse" />
+          </div>
+          <div className="p-4 pt-3 flex-1 space-y-4 border-t border-gray-100">
+            {Array.from({ length: 3 }).map((_, j) => (
+              <div key={j} className="space-y-1.5">
+                <div className="h-2.5 w-20 bg-gray-100 rounded-sm animate-pulse" />
+                <div className="h-3 w-32 bg-gray-100 rounded-sm animate-pulse" />
+              </div>
+            ))}
+          </div>
+          <div className="p-4 pt-0 mt-auto">
+            <div className="w-full h-11 bg-gray-50 animate-pulse" />
           </div>
         </div>
       ))}

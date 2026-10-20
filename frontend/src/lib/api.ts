@@ -366,6 +366,31 @@ function isAuthError(response: Response, message: string) {
   return response.status === 401 || message === "Unauthenticated.";
 }
 
+export class ApiValidationError extends Error {
+  public readonly errors: Record<string, string[]>;
+  public readonly status: number;
+
+  constructor(message: string, errors: Record<string, string[]>, status: number) {
+    super(message);
+    this.name = "ApiValidationError";
+    this.errors = errors;
+    this.status = status;
+  }
+
+  static is(err: unknown): err is ApiValidationError {
+    return err instanceof ApiValidationError;
+  }
+
+  getFieldError(field: string): string | undefined {
+    const messages = this.errors[field];
+    return messages?.[0];
+  }
+
+  hasFieldError(field: string): boolean {
+    return !!this.errors[field]?.length;
+  }
+}
+
 async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
@@ -381,6 +406,11 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
       handleUnauthenticated();
       throw new Error("Session expirée, reconnectez-vous.");
     }
+
+    if (response.status === 422 && error.errors) {
+      throw new ApiValidationError(message, error.errors, response.status);
+    }
+
     throw new Error(message);
   }
 
@@ -721,3 +751,23 @@ export const api = {
   updateSettings: (data: Partial<SiteSettings>): Promise<{ data: Partial<SiteSettings> }> =>
     apiRequest("/admin/settings", { method: "PATCH", body: JSON.stringify(data) }),
 };
+
+export function useApiError() {
+  return {
+    getFieldError: (error: unknown, field: string): string | undefined => {
+      if (ApiValidationError.is(error)) {
+        return error.getFieldError(field);
+      }
+      return undefined;
+    },
+    hasFieldError: (error: unknown, field: string): boolean => {
+      if (ApiValidationError.is(error)) {
+        return error.hasFieldError(field);
+      }
+      return false;
+    },
+    isValidationError: (error: unknown): error is ApiValidationError => {
+      return ApiValidationError.is(error);
+    },
+  };
+}

@@ -40,6 +40,7 @@ import { usePublicVehicle } from "@/data/public-store";
 import { useVehiclePageTracking } from "@/lib/analytics";
 import type { Vehicle } from "@/lib/api";
 import { ReservationDrawer } from "@/components/reservation-drawer";
+import { vehicleImageUrl } from "@/lib/image";
 
 // ════════════════════════════════════════════════════════════
 // ImageGallery
@@ -102,6 +103,13 @@ function ImageGallery({
   const current = images[activeIndex] ?? images[0];
   if (!current) return null;
 
+  // Normalize image URLs using vehicleImageUrl
+  const normalizedImages = images.map((img, i) => ({
+    ...img,
+    normalizedUrl: vehicleImageUrl({ vehicle_images: images }, i) ?? img.url,
+  }));
+  const currentNormalized = normalizedImages[activeIndex]!;
+
   return (
     <>
       <div className="overflow-hidden rounded-lg bg-white p-2 shadow-sm">
@@ -117,8 +125,8 @@ function ImageGallery({
             className="block w-full cursor-zoom-in"
           >
             <img
-              key={current.id}
-              src={current.url}
+              key={currentNormalized.id}
+              src={currentNormalized.normalizedUrl}
               alt={`${vehicle.brand} ${vehicle.model}`}
               draggable={false}
               className="aspect-[4/3] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
@@ -188,7 +196,7 @@ function ImageGallery({
 
         {hasMultiple && (
           <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-5">
-            {images.slice(0, 5).map((img, i) => (
+            {normalizedImages.slice(0, 5).map((img, i) => (
               <button
                 key={img.id || i}
                 onClick={() => setActiveIndex(i)}
@@ -200,7 +208,7 @@ function ImageGallery({
                     : "border-transparent opacity-60 hover:opacity-100")
                 }
               >
-                <img src={img.url} alt="" className="h-full w-full object-cover" />
+                <img src={img.normalizedUrl} alt="" className="h-full w-full object-cover" />
               </button>
             ))}
           </div>
@@ -229,8 +237,8 @@ function ImageGallery({
           )}
 
           <img
-            key={current.id}
-            src={current.url}
+            key={currentNormalized.id}
+            src={currentNormalized.normalizedUrl}
             alt={`${vehicle.brand} ${vehicle.model}`}
             draggable={false}
             onClick={(e) => e.stopPropagation()}
