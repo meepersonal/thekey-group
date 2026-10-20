@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             AgenceSeeder::class,
             AdminUserSeeder::class,
             SettingsSeeder::class,
+            PromotionSeeder::class,
         ]);
     }
 }

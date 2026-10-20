@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\V1\{
     AdminSettingController,
     AdminStatController,
     AdminUserController,
+    PromotionController,
 };
 
 /*
@@ -46,6 +47,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/media/{path}', [MediaController::class, 'show'])->where('path', '.*');
     Route::get('/agences', [AgenceController::class, 'index']);
     Route::get('/agences/{agence}', [AgenceController::class, 'show']);
+    Route::get('/promotions/active', [PromotionController::class, 'active']);
 
     /* ---- Public : Précommande & Tracking (création) ---- */
     Route::post('/preorders', [PreorderController::class, 'store']);
