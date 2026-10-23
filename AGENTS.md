@@ -2,6 +2,15 @@
 
 Monorepo: `backend/` (Laravel 13 API) + `frontend/` (Vite + React 18, TypeScript).
 
+## Lovable lifecycle (root `lovable.toml`)
+
+- The Lovable platform runs `dev` / `build` / `build:dev` from the repo root, where there is
+  no `package.json`; these tasks are defined in root `lovable.toml` and delegate to
+  `npm run … --prefix frontend`. The `dev` task forces Vite onto port 8080 (`--strictPort`)
+  because the Lovable preview proxies to 8080, not the Vite default 8081.
+- TOML bare keys cannot contain `:` — quote `"build:dev"` in `lovable.toml`, or the whole
+  file fails to parse and every lifecycle task reports "no command found".
+
 ## Prerequisites
 
 - **Backend**: PHP 8.3+, Composer, MySQL (default) or SQLite. See `backend/.env`.
