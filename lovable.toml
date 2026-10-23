@@ -1,4 +1,4 @@
 [run]
 dev = "npm run dev --prefix frontend -- --port 8080 --strictPort"
 build = "npm run build --prefix frontend"
-build:dev = "npm run build:dev --prefix frontend"
+"build:dev" = "npm run build:dev --prefix frontend"
