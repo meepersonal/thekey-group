@@ -89,20 +89,20 @@
 :root {
   --radius: 0.25rem;
   --background: oklch(1 0 0);
-  --foreground: oklch(0.218 0.037 249);
+  --foreground: oklch(0.217100 0.038467 250.010);
   --card: var(--background);
   --card-foreground: var(--foreground);
   --popover: var(--background);
   --popover-foreground: var(--foreground);
-  --primary: oklch(0.72 0.174 54);
-  --primary-foreground: oklch(0.218 0.037 249);
-  --navy: oklch(0.218 0.037 249);
-  --navy-soft: oklch(0.352 0.077 248);
+  --primary: oklch(0.722191 0.171270 53.919);
+  --primary-foreground: oklch(0.217100 0.038467 250.010);
+  --navy: oklch(0.217100 0.038467 250.010);
+  --navy-soft: oklch(0.350647 0.075660 248.317);
   --navy-foreground: oklch(1 0 0);
-  --secondary: oklch(0.969 0.004 248);
+  --secondary: oklch(0.969196 0.003426 247.858);
   --secondary-foreground: var(--foreground);
   --muted: var(--secondary);
-  --muted-foreground: oklch(0.516 0.023 254);
+  --muted-foreground: oklch(0.513062 0.022661 253.019);
   --accent: var(--primary);
   --accent-foreground: var(--foreground);
   --success: var(--navy-soft);
@@ -131,15 +131,15 @@
   --shadow-glow: 0 4px 16px oklch(0.218 0.037 249 / 0.08);
 }
 .dark {
-  --background: oklch(0.218 0.037 249);
-  --foreground: oklch(0.969 0.004 248);
+  --background: oklch(0.217100 0.038467 250.010);
+  --foreground: oklch(0.969196 0.003426 247.858);
   --card: oklch(0.27 0.04 249);
   --card-foreground: var(--foreground);
   --popover: var(--card);
   --popover-foreground: var(--foreground);
-  --primary: oklch(0.72 0.174 54);
-  --primary-foreground: oklch(0.218 0.037 249);
-  --secondary: oklch(0.352 0.077 248);
+  --primary: oklch(0.722191 0.171270 53.919);
+  --primary-foreground: oklch(0.217100 0.038467 250.010);
+  --secondary: oklch(0.350647 0.075660 248.317);
   --secondary-foreground: var(--foreground);
   --muted: var(--secondary);
   --muted-foreground: oklch(0.78 0.018 248);
@@ -237,3 +237,5 @@ html { scroll-behavior: smooth; }
 @media (max-width: 1023px) { .editorial-container { width: calc(100% - 48px); } .editorial-section { padding-block: 72px; } .editorial-title { font-size: 34px; } }
 @media (max-width: 639px) { .editorial-container { width: calc(100% - 40px); } .editorial-section { padding-block: 56px; } .editorial-title { font-size: 29px; } .hero-photographs { height: 60svh; min-height: 360px; max-height: 620px; } .hero-photographs img { object-position: 60% center; } .key-logo { width: 155px; height: 28px; } .brand-wordmark { font-size: 21px; } .home-step { border-top: 0; border-left: 1px solid var(--border); padding: 0 0 32px 26px; } .home-step::before { top: 10px; left: -4px; } .operations-grid { grid-template-columns: 1fr 1fr; gap: 10px; } .operations-grid > :first-child { grid-column: span 2; min-height: 250px; grid-row: auto; } .operations-grid > * { min-height: 160px; } .operations-caption { left: 8px; bottom: 8px; padding: 5px 7px; font-size: 10px; } .home-final img { width: 100%; opacity: .16; } .home-final-content { padding-block: 60px; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+.key-logo.grayscale { filter: brightness(0) saturate(100%) invert(8%) sepia(28%) saturate(1491%) hue-rotate(169deg) brightness(94%) contrast(95%); }
