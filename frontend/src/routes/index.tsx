@@ -15,9 +15,9 @@ export function Index() {
     <div>
       <HeroSection />
       <PartnersSection />
-      <TrustPartnersSection partners={TRUST_PARTNERS} />
+      {/* <TrustPartnersSection partners={TRUST_PARTNERS} /> */}
       <FeaturedVehiclesSection />
-      <WhyChineseSection items={WHY_CHINESE} />
+      {/* <WhyChineseSection items={WHY_CHINESE} /> */}
       <VideoSection />
       <WhyUsSection items={WHY_US} />
       <AgenciesSection />

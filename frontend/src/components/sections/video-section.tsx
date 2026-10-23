@@ -169,7 +169,7 @@ export function VideoSection() {
           <div className="flex flex-col justify-center text-center lg:col-span-7 lg:text-left">
             <div className="flex items-center justify-center gap-3 lg:justify-start">
               <span className="block text-xs font-bold uppercase tracking-widest text-primary sm:text-sm">
-                03 — Engagement key-group
+                04 — Engagement key-group
               </span>
             </div>
 

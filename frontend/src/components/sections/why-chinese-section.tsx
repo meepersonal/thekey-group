@@ -46,7 +46,7 @@ export function WhyChineseSection({ items }: WhyChineseSectionProps) {
         {/* ─── Header ─── */}
         <div className="mb-12 sm:mb-16 md:mb-20">
           <span className="block text-xs font-bold uppercase tracking-widest text-primary sm:text-sm">
-            02 — Méthode
+            03 — Méthode
           </span>
           <h2 className="mt-3 font-display text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
             De la précommande à l'entretien.

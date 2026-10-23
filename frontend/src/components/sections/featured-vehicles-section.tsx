@@ -61,7 +61,7 @@ export function FeaturedVehiclesSection() {
         {/* Header (INCHANGÉ) */}
         <div className="mb-12 sm:mb-16">
           <span className="block text-xs font-bold uppercase tracking-widest text-emerald-600 sm:text-sm">
-            01 — Véhicules en vedette
+            02 — Véhicules en vedette
           </span>
           <h2 className="mt-3 font-display text-3xl font-black leading-tight tracking-tight text-black sm:text-4xl md:text-5xl">
             Notre sélection du moment
