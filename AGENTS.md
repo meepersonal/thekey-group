@@ -69,3 +69,5 @@ Monorepo: `backend/` (Laravel 13 API) + `frontend/` (Vite + React 18, TypeScript
   Utility classes use `surface-card`, `bg-gradient-navy`, `shadow-glow`, etc. No raw CSS
   edits outside `styles.css` unless requested.
 - **Comments**: avoid adding code comments; keep changes self-explanatory.
+- **Homepage**: Keep editorial presentation in focused homepage components and browser-safe filtering helpers; consume existing public hooks without adding a backend or seeding presentation records.
+- **Homepage navigation**: Use native homepage section anchors for the explicitly requested single-page experience and preserve the existing catalogue, contact, vehicle and tracking destinations.
