@@ -25,7 +25,7 @@ export function SiteHeader() {
   useEffect(() => setOpen(false), [pathname]);
   return <header className={`sticky top-0 z-40 border-b bg-background text-navy transition-shadow ${scrolled ? "border-border shadow-sm" : "border-transparent"}`}>
     <div className="editorial-container flex h-[76px] items-center justify-between gap-4 max-sm:h-16">
-      <Link to="/" aria-label="KEY GROUP — Accueil"><img src={logo.url} className="key-logo" width={196} height={34} alt="THE KEY GROUP" /></Link>
+      <Link to="/" aria-label="KEY GROUP — Accueil"><img src={logo.url} className="key-logo" width={196} height={34} alt="THE KEY GROUP" onError={(event) => { if (!event.currentTarget.src.endsWith('/logo.png')) { event.currentTarget.src = '/logo.png'; event.currentTarget.classList.add('grayscale'); } }} /></Link>
       <nav aria-label="Navigation principale" className="hidden items-center gap-6 xl:flex">
         {navigation.map((item) => item.anchor ? <a key={item.to} href={item.to} className="text-xs font-medium transition-colors hover:text-primary">{item.label}</a> : <Link key={item.to} to={item.to} className={`text-xs font-medium transition-colors hover:text-primary ${pathname === item.to ? "text-navy font-bold" : "text-muted-foreground"}`}>{item.label}</Link>)}
       </nav>

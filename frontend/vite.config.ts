@@ -23,6 +23,11 @@ export default defineConfig(({ mode }) => {
       host: "0.0.0.0",
       port: 8081,
       proxy: {
+        "/public-data": {
+          target: "https://api-key-group.geant.app",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/public-data/, ""),
+        },
         "/api": {
           target: "http://localhost:8000",
           changeOrigin: true,
