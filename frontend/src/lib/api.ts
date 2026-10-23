@@ -1,7 +1,7 @@
-const API_BASE = "https://api-key-group.geant.app/api/v1";
+const API_BASE = import.meta.env.DEV ? "/public-data/api/v1" : "https://api-key-group.geant.app/api/v1";
 
 /** Origine seule (sans /api/v1), utile pour résoudre les URLs /storage renvoyées par l'API. */
-export const API_ORIGIN = API_BASE.replace(/\/api\/v1\/?$/, "");
+export const API_ORIGIN = "https://api-key-group.geant.app";
 
 type LoginResponse = {
   token: string;

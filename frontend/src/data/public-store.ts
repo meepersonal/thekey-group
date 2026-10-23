@@ -104,6 +104,6 @@ export function useDocumentBranding() {
   }, [favicon]);
 
   useEffect(() => {
-    if (siteName) document.title = siteName;
+    if (siteName && window.location.pathname !== "/") document.title = siteName;
   }, [siteName]);
 }
